@@ -72,8 +72,8 @@ const Navbar = () => {
             <div className="flex items-center gap-6 lg:gap-8">
               {[
                 { path: "/", label: "Главная" },
-                { path: "/groups", label: "Команда и оборудование" },
-                { path: "/contacts", label: "Контакты" },
+                { path: "/tech-rider", label: "Команда и оборудование" },
+                { path: "/order", label: "Контакты" },
               ].map((item) => (
                 <Link
                   key={item.path}
