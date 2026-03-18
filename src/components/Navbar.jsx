@@ -31,12 +31,6 @@ const Navbar = () => {
     >
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex justify-between items-center">
-          {/* ЛОГОТИП — с иконкой и ховером */}
-          {/* ЛОГОТИП — с музыкальной нотой */}
-          {/* ЛОГОТИП — звуковая волна */}
-          {/* ЛОГОТИП — нотный стан */}
-
-          {/* ЛОГОТИП — нотный стан */}
           <Link
             to="/"
             className="group flex items-center gap-3 text-3xl font-extrabold tracking-tight"
@@ -78,7 +72,7 @@ const Navbar = () => {
             <div className="flex items-center gap-6 lg:gap-8">
               {[
                 { path: "/", label: "Главная" },
-                { path: "/groups", label: "Группы" },
+                { path: "/groups", label: "Команда и оборудование" },
                 { path: "/contacts", label: "Контакты" },
               ].map((item) => (
                 <Link
@@ -138,7 +132,7 @@ const Navbar = () => {
           <div className="flex flex-col space-y-3 pt-4 border-t border-[var(--color-purple-500)]/20">
             {[
               { path: "/", label: "Главная" },
-              { path: "/groups", label: "Группы" },
+              { path: "/groups", label: "Команда и оборудование" },
               { path: "/contacts", label: "Контакты" },
             ].map((item) => (
               <Link

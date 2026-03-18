@@ -1,0 +1,8 @@
+.cover-groups-carousel .swiper-button-prev,
+.cover-groups-carousel .swiper-button-next {
+  color: var(--color-purple-600);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  backdrop-filter: blur(4px);
+}

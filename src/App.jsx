@@ -1,15 +1,20 @@
 import React from "react";
+import { Routes, Route } from "react-router-dom";
 import "./App.css";
-import Navbar from "../src/components/Navbar.jsx";
-import Carousel from "./components/Carousel.jsx";
+import Home from "./pages/Home";
+import TechRider from "./pages/TechRider";
+import Contacts from "./pages/Contacts";
+import Navbar from "./components/Navbar";
 
 function App() {
   return (
     <>
       <Navbar />
-      <main className="pt-8 md:pt-24">
-        <Carousel />
-      </main>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/groups" element={<TechRider />} />
+        <Route path="/contacts" element={<Contacts />} />
+      </Routes>
     </>
   );
 }

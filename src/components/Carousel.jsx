@@ -1,44 +1,38 @@
 import { groupsData } from "../data/groups";
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Autoplay, Navigation, Pagination } from 'swiper/modules';
+import React from "react";
+import { Link } from "react-router-dom";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Autoplay, Navigation, Pagination } from "swiper/modules";
 
 // Стили Swiper
-import 'swiper/css';
-import 'swiper/css/navigation';
-import 'swiper/css/pagination';
-import 'swiper/css/autoplay';
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
+import "swiper/css/autoplay";
 
 const Carousel = ({ groups = groupsData }) => {
   return (
     <section className="bg-[var(--color-deus-black)]">
       <div className="container mx-auto px-4">
-        <h2 className="text-4xl font-bold text-center mb-4 bg-gradient-to-r from-[var(--color-purple-400)] to-[var(--color-purple-600)] bg-clip-text text-transparent">
-          Наши кавер-группы
-        </h2>
-        <p className="text-center text-[var(--color-deus-white)]/70 mb-12 max-w-2xl mx-auto">
-          Любой жанр, любой формат — подберём музыку для вашего мероприятия
-        </p>
-        
         <Swiper
           modules={[Autoplay, Navigation, Pagination]}
           spaceBetween={24}
           slidesPerView={1}
           navigation={true}
-          pagination={{ 
+          pagination={{
             clickable: true,
-            bulletClass: 'swiper-pagination-bullet !bg-[var(--color-purple-500)]/30 !opacity-100',
-            bulletActiveClass: '!bg-[var(--color-purple-500)] !scale-125',
+            bulletClass:
+              "swiper-pagination-bullet !bg-[var(--color-purple-500)]/30 !opacity-100",
+            bulletActiveClass: "!bg-[var(--color-purple-500)] !scale-125",
           }}
           loop={true}
           autoplay={{
-            delay: 2500,
+            delay: 2000,
             disableOnInteraction: false,
             pauseOnMouseEnter: true,
             waitForTransition: true,
           }}
-          speed={1200}
+          speed={1500}
           breakpoints={{
             640: {
               slidesPerView: 2,
@@ -53,29 +47,31 @@ const Carousel = ({ groups = groupsData }) => {
         >
           {groups.map((group) => (
             <SwiperSlide key={group.id}>
-              <Link 
+              <Link
                 to={`/groups/${group.slug}`}
                 className="block group/card relative overflow-hidden rounded-xl bg-[var(--color-deus-gray-dark)] border border-[var(--color-purple-500)]/20 hover:border-[var(--color-purple-400)]/50 transition-all duration-300 hover:shadow-[0_20px_40px_-15px_rgba(139,92,246,0.5)] h-full"
               >
                 {/* Изображение группы */}
                 <div className="relative h-64 overflow-hidden">
                   <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-deus-black)] via-transparent to-transparent z-10" />
-                  <img 
-                    src={group.image} 
+                  <img
+                    src={group.image}
                     alt={group.name}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover/card:scale-110"
                     onError={(e) => {
                       e.target.onerror = null;
-                      e.target.src = 'https://via.placeholder.com/400x300/1a1a1a/8b5cf6?text=' + encodeURIComponent(group.name);
+                      e.target.src =
+                        "https://via.placeholder.com/400x300/1a1a1a/8b5cf6?text=" +
+                        encodeURIComponent(group.name);
                     }}
                   />
-                  
+
                   {/* Жанр как чип сверху */}
                   <span className="absolute top-4 left-4 z-20 px-3 py-1 text-xs font-semibold rounded-full bg-[var(--color-purple-600)]/90 text-white backdrop-blur-sm border border-[var(--color-purple-400)]/30">
                     {group.genre}
                   </span>
                 </div>
-                
+
                 {/* Информация о группе */}
                 <div className="p-6">
                   <h3 className="text-2xl font-bold mb-2 text-white group-hover/card:text-[var(--color-purple-400)] transition-colors">
@@ -84,32 +80,62 @@ const Carousel = ({ groups = groupsData }) => {
                   <p className="text-[var(--color-deus-white)]/70 text-sm mb-4 line-clamp-2">
                     {group.description}
                   </p>
-                  
+
                   {/* Статистика — ИСПРАВЛЕНО! */}
                   <div className="flex items-center gap-4 mb-4 text-xs text-[var(--color-deus-white)]/70">
                     <span className="flex items-center gap-1">
-                      <svg className="w-4 h-4 text-[var(--color-purple-400)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                      <svg
+                        className="w-4 h-4 text-[var(--color-purple-400)]"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+                        />
                       </svg>
                       {group.members}
                     </span>
                     <span className="flex items-center gap-1">
-                      <svg className="w-4 h-4 text-[var(--color-purple-400)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      <svg
+                        className="w-4 h-4 text-[var(--color-purple-400)]"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                        />
                       </svg>
                       {group.concerts}
                     </span>
                   </div>
-                  
+
                   {/* Индикатор кликабельности */}
                   <span className="inline-flex items-center text-[var(--color-purple-400)] font-medium">
                     Подробнее
-                    <svg className="w-4 h-4 ml-1 group-hover/card:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    <svg
+                      className="w-4 h-4 ml-1 group-hover/card:translate-x-1 transition-transform"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 5l7 7-7 7"
+                      />
                     </svg>
                   </span>
                 </div>
-                
+
                 {/* Акцентный элемент при наведении */}
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[var(--color-purple-400)] to-[var(--color-purple-600)] transform scale-x-0 group-hover/card:scale-x-100 transition-transform duration-500 origin-left" />
               </Link>
