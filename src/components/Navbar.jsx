@@ -132,8 +132,8 @@ const Navbar = () => {
           <div className="flex flex-col space-y-3 pt-4 border-t border-[var(--color-purple-500)]/20">
             {[
               { path: "/", label: "Главная" },
-              { path: "/groups", label: "Команда и оборудование" },
-              { path: "/contacts", label: "Контакты" },
+              { path: "/tech-rider", label: "Команда и оборудование" },
+              { path: "/order", label: "Контакты" },
             ].map((item) => (
               <Link
                 key={item.path}
