@@ -21,12 +21,7 @@ const Navbar = () => {
   return (
     <nav
       className={`
-        fixed w-full z-50 top-0 transition-all duration-500
-        ${
-          scrolled
-            ? "bg-[var(--color-deus-black)]/80 backdrop-blur-lg shadow-[0_10px_30px_-10px_rgba(139,92,246,0.3)] border-b border-[var(--color-purple-500)]/20 py-3"
-            : "bg-[var(--color-deus-black)] py-5"
-        }
+        fixed w-full z-50 top-0 transition-all duration-500 bg-[var(--color-deus-black)]/80 backdrop-blur-lg py-4
       `}
     >
       <div className="container mx-auto px-4 md:px-6">
