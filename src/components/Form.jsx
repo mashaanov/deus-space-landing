@@ -25,7 +25,7 @@ const DatePickerCustom = ({ value, onClick }) => {
     <button
       type="button"
       onClick={onClick}
-      className="w-full flex items-center gap-3 px-4 py-3 bg-[var(--color-deus-gray-dark)] border border-[var(--color-purple-500)]/30 rounded-lg text-white hover:border-[var(--color-purple-400)] transition-all group"
+      className="w-full flex items-center gap-3 px-4 py-3 bg-[var(--color-deus-gray-dark)] border border-[var(--color-purple-500)]/30 rounded-lg text-white hover:border-[var(--color-purple-400)] transition-all group cursor-pointer"
     >
       <Calendar
         size={20}
@@ -174,17 +174,17 @@ const Form = ({ initialGroup = "" }) => {
         </label>
         <div className="grid grid-cols-2 gap-3">
           {[
-            { value: "small", title: "До 30 чел", desc: "Базовый набор" },
-            { value: "medium", title: "30-250 чел", desc: "Расширенный набор" },
+            { title: "До 30 человек", desc: "Базовый набор" },
+            { title: "30-250 человек", desc: "Расширенный набор" },
           ].map((option) => (
             <button
               key={option.value}
               type="button"
-              onClick={() => setValue("equipment", option.value)}
+              onClick={() => setValue("equipment", option.title)}
               className={`
                 p-3 rounded-lg border text-left transition-all
                 ${
-                  equipment === option.value
+                  equipment === option.title
                     ? "border-[var(--color-purple-400)] bg-[var(--color-purple-500)]/10"
                     : "border-[var(--color-purple-500)]/30 bg-[var(--color-deus-gray-dark)] hover:border-[var(--color-purple-400)]/50"
                 }

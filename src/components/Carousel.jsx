@@ -7,7 +7,7 @@ import AutoScroll from "embla-carousel-auto-scroll";
 const Carousel = ({ groups = groupsData }) => {
   const autoplayRef = useRef(null);
   const timerRef = useRef(null);
-  
+
   const [emblaRef, emblaApi] = useEmblaCarousel(
     {
       loop: true,
@@ -24,7 +24,7 @@ const Carousel = ({ groups = groupsData }) => {
         stopOnInteraction: false,
         stopOnMouseEnter: true,
       }),
-    ]
+    ],
   );
 
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -49,7 +49,7 @@ const Carousel = ({ groups = groupsData }) => {
       if (autoplayRef.current && !autoplayRef.current.isActive()) {
         autoplayRef.current.play();
       }
-    }, 2000); // Пауза на 2 секунды после клика
+    }, 2000);
   }, []);
 
   const scrollPrev = useCallback(() => {
@@ -75,17 +75,17 @@ const Carousel = ({ groups = groupsData }) => {
 
   useEffect(() => {
     if (!emblaApi) return;
-    
+
     // Получаем доступ к плагину автопрокрутки
     const autoScrollPlugin = emblaApi.plugins().autoScroll;
     if (autoScrollPlugin) {
       autoplayRef.current = autoScrollPlugin;
     }
-    
+
     onSelect();
     emblaApi.on("select", onSelect);
     emblaApi.on("reInit", onSelect);
-    
+
     return () => {
       if (emblaApi) {
         emblaApi.off("select", onSelect);
@@ -111,7 +111,7 @@ const Carousel = ({ groups = groupsData }) => {
   }, []);
 
   return (
-    <section className="bg-[var(--color-deus-black)]">
+    <section>
       <div className="container mx-auto px-4 relative">
         {/* Кастомная навигация */}
         <button
@@ -155,8 +155,8 @@ const Carousel = ({ groups = groupsData }) => {
         </button>
 
         {/* Карусель */}
-        <div 
-          className="overflow-hidden" 
+        <div
+          className="overflow-hidden"
           ref={emblaRef}
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
@@ -169,7 +169,7 @@ const Carousel = ({ groups = groupsData }) => {
               >
                 <Link
                   to={`/groups/${group.slug}`}
-                  className="block group/card relative overflow-hidden rounded-xl bg-[var(--color-deus-gray-dark)] border border-[var(--color-purple-500)]/20 hover:border-[var(--color-purple-400)]/50 transition-all duration-300 hover:shadow-[0_20px_40px_-15px_rgba(139,92,246,0.5)] h-full"
+                  className="block group/card relative overflow-hidden rounded-xl bg-[var(--test)] border border-[var(--color-purple-500)]/20 hover:border-[var(--color-purple-400)]/50 transition-all duration-300 hover:shadow-[0_20px_40px_-15px_rgba(139,92,246,0.5)] h-full"
                 >
                   {/* Изображение группы */}
                   <div className="relative h-64 overflow-hidden">
@@ -200,42 +200,6 @@ const Carousel = ({ groups = groupsData }) => {
                     <p className="text-[var(--color-deus-white)]/70 text-sm mb-4 line-clamp-2">
                       {group.description}
                     </p>
-
-                    {/* Статистика */}
-                    <div className="flex items-center gap-4 mb-4 text-xs text-[var(--color-deus-white)]/70">
-                      <span className="flex items-center gap-1">
-                        <svg
-                          className="w-4 h-4 text-[var(--color-purple-400)]"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-                          />
-                        </svg>
-                        {group.members}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <svg
-                          className="w-4 h-4 text-[var(--color-purple-400)]"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                          />
-                        </svg>
-                        {group.concerts}
-                      </span>
-                    </div>
 
                     {/* Индикатор кликабельности */}
                     <span className="inline-flex items-center text-[var(--color-purple-400)] font-medium">

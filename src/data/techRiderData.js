@@ -1,4 +1,4 @@
-import teeest from "../images/groups/teeest.jpg";
+import teeest from "../images/teeest.jpg";
 import {
   Guitar,
   Lightbulb,

@@ -101,7 +101,7 @@ const TechRider = () => {
                   whileTap={{ scale: 0.98 }}
                   transition={{ type: "spring", stiffness: 400, damping: 20 }}
                   className={`
-                    flex-1 px-4 py-2.5 rounded-lg transition-all duration-200 text-sm lg:text-base
+                    flex-1 px-4 py-2.5 rounded-lg transition-all duration-200 text-sm lg:text-base cursor-pointer
                     ${
                       activeSection === item.id
                         ? "bg-[var(--color-purple-600)] text-white shadow-[0_0_20px_rgba(139,92,246,0.5)]"
@@ -181,8 +181,7 @@ const TechRider = () => {
                           delay: 0.2,
                         }}
                         className="absolute top-4 left-4 text-4xl lg:text-5xl filter drop-shadow-2xl z-20 pointer-events-none"
-                      >
-                      </motion.div>
+                      ></motion.div>
 
                       {/* Градиентная обводка при ховере */}
                       <motion.div
@@ -194,91 +193,99 @@ const TechRider = () => {
                     </div>
 
                     {/* Контент */}
+                    {/* Контент - теперь в карточке */}
                     <motion.div
                       initial={{ opacity: 0, x: index % 2 === 1 ? -30 : 30 }}
                       whileInView={{ opacity: 1, x: 0 }}
                       viewport={{ once: true, amount: 0.3 }}
                       transition={{ duration: 0.5, delay: 0.1 }}
                       className={`
-                        flex flex-col justify-center h-full
-                        ${index % 2 === 1 ? "md:col-start-1" : ""}
-                      `}
+    flex flex-col justify-center h-full
+    ${index % 2 === 1 ? "md:col-start-1" : ""}
+  `}
                     >
-                      <div className="space-y-4 lg:space-y-5">
-                        <motion.h2
-                          initial={{ opacity: 0, y: 15 }}
-                          whileInView={{ opacity: 1, y: 0 }}
-                          viewport={{ once: true }}
-                          transition={{ delay: 0.1, duration: 0.4 }}
-                          className="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-[var(--color-purple-400)] to-[var(--color-purple-600)] bg-clip-text text-transparent"
-                        >
-                          {item.title}
-                        </motion.h2>
-
-                        <motion.p
-                          initial={{ opacity: 0, y: 15 }}
-                          whileInView={{ opacity: 1, y: 0 }}
-                          viewport={{ once: true }}
-                          transition={{ delay: 0.15, duration: 0.4 }}
-                          className="text-sm lg:text-base text-[var(--color-deus-white)]/80 leading-relaxed"
-                        >
-                          {item.description}
-                        </motion.p>
-
-                        <motion.div
-                          variants={staggerContainer}
-                          initial="initial"
-                          whileInView="animate"
-                          viewport={{ once: true }}
-                          className="space-y-2 pt-2"
-                        >
-                          <motion.h3
-                            variants={fadeInUp}
-                            className="text-base lg:text-lg font-semibold text-white flex items-center gap-2"
+                      {/* Карточка с контентом */}
+                      <motion.div
+                        whileHover={{ y: -5 }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 300,
+                          damping: 20,
+                        }}
+                        className="bg-[var(--color-purple-900)]/10 backdrop-blur-sm rounded-2xl p-6 lg:p-8 border border-[var(--color-purple-500)]/20 hover:border-[var(--color-purple-400)]/40 transition-all duration-300"
+                      >
+                        <div className="space-y-4 lg:space-y-5">
+                          <motion.h2
+                            initial={{ opacity: 0, y: 15 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ delay: 0.1, duration: 0.4 }}
+                            className="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-[var(--color-purple-400)] to-[var(--color-purple-600)] bg-clip-text text-transparent"
                           >
-                            <motion.span
-                              animate={{ height: [18, 22, 18] }}
-                              transition={{
-                                repeat: Infinity,
-                                duration: 1.5,
-                                ease: "easeInOut",
-                              }}
-                              className="w-1 h-4 bg-[var(--color-purple-400)] rounded-full"
-                            />
-                            В комплекте:
-                          </motion.h3>
-                          <motion.ul className="space-y-1.5">
-                            {item.content.list.slice(0, 4).map((listItem, i) => (
-                              <motion.li
-                                key={i}
-                                variants={fadeInUp}
-                                whileHover={{ x: 3 }}
-                                transition={{ type: "spring", stiffness: 400 }}
-                                className="flex items-start gap-2 group/item"
-                              >
-                                <motion.span
-                                  whileHover={{ scale: 1.2 }}
-                                  className="text-[var(--color-purple-400)] mt-0.5 text-sm"
-                                >
-                                  •
-                                </motion.span>
-                                <span className="text-xs lg:text-sm text-[var(--color-deus-white)]/80 group-hover/item:text-white transition-colors duration-200">
-                                  {listItem}
-                                </span>
-                              </motion.li>
-                            ))}
-                            {item.content.list.length > 4 && (
-                              <motion.li
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                transition={{ delay: 0.3 }}
-                                className="text-xs text-[var(--color-purple-400)]/70 mt-1"
-                              >
-                              </motion.li>
-                            )}
-                          </motion.ul>
-                        </motion.div>
-                      </div>
+                            {item.title}
+                          </motion.h2>
+
+                          <motion.p
+                            initial={{ opacity: 0, y: 15 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ delay: 0.15, duration: 0.4 }}
+                            className="text-sm lg:text-base text-[var(--color-deus-white)]/80 leading-relaxed"
+                          >
+                            {item.description}
+                          </motion.p>
+
+                          <motion.div
+                            variants={staggerContainer}
+                            initial="initial"
+                            whileInView="animate"
+                            viewport={{ once: true }}
+                            className="space-y-2 pt-2"
+                          >
+                            <motion.h3
+                              variants={fadeInUp}
+                              className="text-base lg:text-lg font-semibold text-white flex items-center gap-2"
+                            >
+                              <motion.span
+                                animate={{ height: [18, 22, 18] }}
+                                transition={{
+                                  repeat: Infinity,
+                                  duration: 1.5,
+                                  ease: "easeInOut",
+                                }}
+                                className="w-1 h-4 bg-[var(--color-purple-400)] rounded-full"
+                              />
+                              В комплекте:
+                            </motion.h3>
+                            <motion.ul className="space-y-1.5">
+                              {item.content.list
+                                .slice(0, 4)
+                                .map((listItem, i) => (
+                                  <motion.li
+                                    key={i}
+                                    variants={fadeInUp}
+                                    whileHover={{ x: 3 }}
+                                    transition={{
+                                      type: "spring",
+                                      stiffness: 400,
+                                    }}
+                                    className="flex items-start gap-2 group/item"
+                                  >
+                                    <motion.span
+                                      whileHover={{ scale: 1.2 }}
+                                      className="text-[var(--color-purple-400)] mt-0.5 text-sm"
+                                    >
+                                      •
+                                    </motion.span>
+                                    <span className="text-xs lg:text-sm text-[var(--color-deus-white)]/80 group-hover/item:text-white transition-colors duration-200">
+                                      {listItem}
+                                    </span>
+                                  </motion.li>
+                                ))}
+                            </motion.ul>
+                          </motion.div>
+                        </div>
+                      </motion.div>
                     </motion.div>
                   </div>
                 </div>

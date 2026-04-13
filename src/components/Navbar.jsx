@@ -21,8 +21,14 @@ const Navbar = () => {
   return (
     <nav
       className={`
-        fixed w-full z-50 top-0 transition-all duration-500 bg-[var(--color-deus-black)]/80 backdrop-blur-lg py-4
-      `}
+    fixed w-full z-50 top-0 transition-all duration-500 
+    ${
+      scrolled
+        ? "bg-[#0f0f1a]/90 backdrop-blur-xl border-b border-[var(--color-purple-400)]/30 shadow-lg shadow-[var(--color-purple-500)]/10"
+        : "bg-white/5 backdrop-blur-xl border-b border-white/10"
+    }
+    py-4
+  `}
     >
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex justify-between items-center">
@@ -57,7 +63,7 @@ const Navbar = () => {
               />
             </div>
             <span className="bg-gradient-to-r from-[var(--color-purple-400)] to-[var(--color-purple-600)] bg-clip-text text-transparent">
-              DEUS SPACE
+              ДЕУС СПЭЙС
             </span>
           </Link>
 

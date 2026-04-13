@@ -1,4 +1,6 @@
-import teeest from "../images/groups/teeest.jpg"
+import teeest from "../images/teeest.jpg"
+import test1 from "../images/test1.jpg"
+import test2 from "../images/test2.jpg"
 
 export const groupsData = [
   {
@@ -6,6 +8,7 @@ export const groupsData = [
     name: 'Рок',
     slug: 'зажигательный рок',
     image: teeest,
+    photos: [test1, test2, teeest],
     description: 'Зажигательные каверы на русский рок от 90-х до наших дней. Легендарные хиты в новом звучании!',
     genre: 'Русский рок',
     members: 5,
@@ -16,6 +19,7 @@ export const groupsData = [
     name: 'Metal Crew',
     slug: 'metal-crew',
     image: teeest,
+    photos: [test1, test2, teeest],
     description: 'Тяжёлая классика Metallica, Iron Maiden, Judas Priest и других гигантов метал-сцены.',
     genre: 'Метал',
     members: 4,
@@ -26,6 +30,7 @@ export const groupsData = [
     name: 'Диск 80-90',
     slug: 'disco-80-90',
     image: teeest,
+    photos: [test1, test2, teeest],
     description: 'Ностальгический бум! Лучшие танцевальные хиты 80-х и 90-х. Modern Talking, C.C.Catch, Ottawan и другие.',
     genre: 'Диско/Поп',
     members: 6,
@@ -36,6 +41,7 @@ export const groupsData = [
     name: 'Rock-n-roll Band',
     slug: 'rock-n-roll',
     image: teeest,
+    photos: [test1, test2, teeest],
     description: 'Энергия рок-н-ролла! От Элвиса до Брайана Адамса. Заставит танцевать даже самых скромных.',
     genre: 'Рок-н-ролл',
     members: 4,
@@ -46,6 +52,7 @@ export const groupsData = [
     name: 'Jazz Lounge',
     slug: 'jazz-lounge',
     image: teeest,
+    photos: [test1, test2, teeest],
     description: 'Изысканный джаз для ценителей. Идеально для фуршетов, свадеб и закрытых вечеринок.',
     genre: 'Джаз/Соул',
     members: 7,
@@ -56,6 +63,7 @@ export const groupsData = [
     name: 'Indie Wave',
     slug: 'indie-wave',
     image: teeest,
+    photos: [test1, test2, teeest],
     description: 'Атмосферный инди-рок и альтернатива. Arctic Monkeys, The Killers, Muse и не только.',
     genre: 'Инди/Альтернатива',
     members: 4,

@@ -72,10 +72,10 @@ const Contacts = () => {
                     <div>
                       <p className="text-sm font-medium text-[var(--color-purple-400)] mb-1">E-MAIL</p>
                       <a 
-                        href="mailto:manager@golovko.group" 
+                        href="mailto:deus.space.orders@gmail.com" 
                         className="text-2xl font-bold text-white hover:text-[var(--color-purple-400)] transition-colors"
                       >
-                        text_meeeee.group
+                        deus.space.orders@gmail.com
                       </a>
                     </div>
                   </div>

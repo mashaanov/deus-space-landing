@@ -5,7 +5,7 @@ export const orderSchema = z.object({
     required_error: "Выберите группу",
   }).min(1, "Выберите группу"),
   
-  equipment: z.enum(["small", "medium"], {
+  equipment: z.enum(["до 30 человек", "30-250 человек"], {
     required_error: "Выберите формат аппаратуры",
   }),
   
@@ -29,7 +29,7 @@ export const orderSchema = z.object({
 
 export const defaultValues = {
   group: "",
-  equipment: "small",
+  equipment: "до 30 человек",
   eventDate: new Date(),
   location: "",
   phone: "",
