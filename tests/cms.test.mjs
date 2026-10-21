@@ -22,7 +22,7 @@ async function fixture(t, seed = {hero:{title:'Initial'}}) {
     return {status:response.status,headers:response.headers,body:await response.json()};
   }
   const login = (password='testing-password-42') => request('/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:'Masha',password})});
-  return {request,login,dataDir,restart:async()=>{handle=await createCms({dataDir,defaultContentPath,now:()=>time});},advance:amount=>{time+=amount;}};
+  return {request,login,dataDir,origin,restart:async()=>{handle=await createCms({dataDir,defaultContentPath,now:()=>time});},advance:amount=>{time+=amount;}};
 }
 test('authentication, CSRF, content persistence, session expiration and logout',async t=>{
   const f=await fixture(t);
@@ -94,6 +94,40 @@ test('schema enforces renderer structures while allowing empty and reordered blo
   assert.throws(()=>validateStructure({home:{blocks:[{type:'stats',items:null}]},groups:[]},template));
   assert.throws(()=>validateStructure({home:{blocks:[{type:'unknown'}]},groups:[]},template));
   assert.throws(()=>validateStructure({home:{blocks:[]},groups:[{name:'x',repertoire:[{}]}]},template));
+});
+
+test('schema validates without Object.hasOwn and still rejects inherited fields', () => {
+  const hasOwn = Object.hasOwn;
+  try {
+    // The production PM2 process previously used Node 14, which has no Object.hasOwn.
+    Object.hasOwn = undefined;
+    const template = {hero:{image:''}};
+    assert.doesNotThrow(() => validateStructure({hero:{image:'/uploads/example.jpg'}}, template));
+    const inherited = Object.assign(Object.create({image:''}), {unexpected:''});
+    assert.throws(() => validateStructure({hero:inherited}, template), /Invalid content structure/);
+  } finally {
+    Object.hasOwn = hasOwn;
+  }
+});
+
+test('uploaded home image saves, survives restart and serves the original bytes', async t => {
+  const seed = JSON.parse(await readFile(new URL('../content/default-content.json', import.meta.url), 'utf8'));
+  const f = await fixture(t, seed);
+  const login = await f.login();
+  const headers = {cookie:login.headers.get('set-cookie').split(';')[0], 'X-CSRF-Token':login.body.csrfToken};
+  const bytes = await readFile(new URL('../public/media/test1.jpg', import.meta.url));
+  const upload = await f.request('/api/admin/uploads', {method:'POST', headers:{...headers, 'Content-Type':'image/jpeg'}, body:bytes});
+  assert.equal(upload.status, 201);
+  const edited = structuredClone(seed);
+  edited.home.blocks.find(block => block.type === 'hero').image = upload.body.url;
+  const saved = await f.request('/api/admin/content', {method:'PUT', headers:{...headers, 'Content-Type':'application/json'}, body:JSON.stringify(edited)});
+  assert.equal(saved.status, 200);
+  await f.restart();
+  assert.deepEqual((await f.request('/api/content')).body, edited);
+  const image = await fetch(f.origin + upload.body.url);
+  assert.equal(image.status, 200);
+  assert.equal(image.headers.get('content-type'), 'image/jpeg');
+  assert.deepEqual(Buffer.from(await image.arrayBuffer()), bytes);
 });
 
 test('production seed content validates and roundtrips all editable sections', async t => {

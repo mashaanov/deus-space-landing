@@ -68,7 +68,7 @@ export function validateStructure(value, template) {
     } else if (expected && typeof expected === 'object') {
       if (!item || Array.isArray(item) || typeof item !== 'object') throw new Error('Invalid content structure');
       const keys = Object.keys(expected);
-      if (keys.length !== Object.keys(item).length || keys.some(key => !Object.hasOwn(item, key))) throw new Error('Invalid content structure');
+      if (keys.length !== Object.keys(item).length || keys.some(key => !Object.prototype.hasOwnProperty.call(item, key))) throw new Error('Invalid content structure');
       for (const key of keys) visit(item[key], expected[key]);
     } else if (typeof item !== typeof expected || item === null) throw new Error('Invalid content structure');
   }

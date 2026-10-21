@@ -5,6 +5,10 @@ import { realpath, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+if (Number(process.versions.node.split('.')[0]) < 22) {
+  throw new Error(`Node.js 22 or newer is required; running ${process.versions.node}. Restart novicovs with the Node.js 22 interpreter in ecosystem.config.cjs.`);
+}
+
 const root = await realpath(fileURLToPath(new URL('./dist/', import.meta.url)));
 const port = Number(process.env.PORT || 1488);
 if (!Number.isInteger(port) || port < 1 || port > 65535) {

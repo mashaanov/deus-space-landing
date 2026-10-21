@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useId, useRef, useState } from 'react';
+import { ArrowUp, ArrowDown, Copy, Trash2, Plus, Upload, ChevronDown, X } from 'lucide-react';
 import defaults from '../../content/default-content.json';
 import './Admin.css';
 
 const labels = {
-  site: 'Сайт', home: 'Главная', blocks: 'Блоки страницы', groups: 'Музыкальные группы',
+  site: 'Сайт', home: 'Главная', blocks: 'Блоки страницы', groups: 'Группы',
   techRider: 'Команда и оборудование', contacts: 'Контакты', form: 'Форма заявки',
   brand: 'Название агентства', nav: 'Навигация', footer: 'Подвал', title: 'Заголовок',
   subtitle: 'Подзаголовок', description: 'Описание', text: 'Текст', name: 'Название / имя',
@@ -28,7 +29,15 @@ function newItem(value) {
   }
   return next;
 }
-const itemName = (item, i) => (typeof item === 'object' && item !== null && (item.title || item.name || item.label || item.type)) || `Элемент ${i + 1}`;
+const blockNames = { hero: 'Главный экран', groups: 'Группы', stats: 'Статистика', pricing: 'Тарифы', reviews: 'Отзывы', equipment: 'Оборудование', specialist: 'Специалист' };
+const itemName = (item, i) => {
+  if (item && typeof item === 'object') {
+    const name = item.title || item.name || item.label;
+    return item.type ? `${blockNames[item.type] || 'Блок'}${name ? ` · ${name}` : ''}` : name || `Элемент ${i + 1}`;
+  }
+  return typeof item === 'string' && item ? item : `Элемент ${i + 1}`;
+};
+const hiddenFields = new Set(['id', 'type', 'popupId']);
 const mediaField = key => /image|avatar|photo|video|audio|poster|src|file/i.test(key);
 
 async function api(url, options = {}) {
@@ -38,40 +47,87 @@ async function api(url, options = {}) {
   return data;
 }
 
+function UploadControl({ upload, onUploaded }) {
+  const [uploading, setUploading] = useState(false);
+  const [message, setMessage] = useState('');
+  const latestChange = useRef(onUploaded);
+  latestChange.current = onUploaded;
+  return <div className="admin-upload-control">
+    <label className={`admin-upload${uploading ? ' is-uploading' : ''}`}>
+      <Upload size={17} aria-hidden="true" /><span>{uploading ? 'Загрузка…' : 'Загрузить файл'}</span>
+      <input className="admin-file-input" disabled={uploading} type="file" aria-label="Загрузить файл" accept="image/png,image/jpeg,image/webp,image/gif,video/mp4,video/webm,audio/mpeg,application/pdf" onChange={async e => {
+        const file = e.target.files?.[0];
+        e.target.value = '';
+        if (!file) return;
+        setUploading(true); setMessage('');
+        try {
+          const url = await upload(file);
+          if (url) { latestChange.current?.(url); setMessage(`Загружен: ${file.name}`); }
+          else setMessage('Не удалось загрузить файл.');
+        } finally { setUploading(false); }
+      }} />
+    </label>
+    {message && <span className="admin-upload-message" role="status">{message}</span>}
+  </div>;
+}
+
+function AddItemDialog({ models, example, onAdd, isBlocks }) {
+  const dialog = useRef(null);
+  const headingId = useId();
+  const [newType, setNewType] = useState(models[0]?.type || '');
+  const openDialog = () => {
+    setNewType(models[0]?.type || '');
+    dialog.current.showModal();
+  };
+  return <>
+    <button type="button" className={isBlocks ? 'admin-fab' : 'admin-add-item'} aria-label={isBlocks ? 'Добавить блок' : 'Добавить элемент'} title={isBlocks ? 'Добавить блок' : 'Добавить элемент'} onClick={openDialog}><Plus size={22} aria-hidden="true" />{!isBlocks && <span>Добавить элемент</span>}</button>
+    <dialog ref={dialog} className="admin-dialog" aria-labelledby={headingId} onClick={e => { if (e.target === dialog.current) dialog.current.close(); }}>
+      <form onSubmit={e => { e.preventDefault(); const model = models.find(item => item.type === newType) || example; onAdd(newItem(model)); dialog.current.close(); }}>
+        <div className="admin-dialog-heading"><h2 id={headingId}>{isBlocks ? 'Новый блок' : 'Новый элемент'}</h2><button type="button" className="admin-icon-button" aria-label="Закрыть диалог" onClick={() => dialog.current.close()}><X size={20} /></button></div>
+        {models.length > 0 ? <label className="admin-dialog-field">Тип нового блока<select autoFocus value={newType} onChange={e => setNewType(e.target.value)}>{models.map(model => <option key={model.type} value={model.type}>{blockNames[model.type] || 'Блок'}</option>)}</select></label> : <p>Будет добавлен новый элемент. После добавления измените его поля.</p>}
+        <div className="admin-dialog-actions"><button type="button" onClick={() => dialog.current.close()}>Отменить</button><button className="admin-primary" type="submit">Добавить</button></div>
+      </form>
+    </dialog>
+  </>;
+}
+
 function Field({ value, onChange, fieldKey, template, upload, depth = 0 }) {
-  const [newType, setNewType] = useState('');
   if (Array.isArray(value)) {
     const example = template?.[0] ?? value[0] ?? '';
     const models = Array.isArray(template) ? template.filter((item, i, list) => item && typeof item === 'object' && item.type && list.findIndex(other => other.type === item.type) === i) : [];
-    const selectedModel = models.find(item => item.type === newType) || example;
-    return <div className="admin-array">
-      {value.map((item, index) => <details key={index} open={depth < 1} className="admin-item">
-        <summary>{String(itemName(item, index))}</summary>
-        <div className="admin-actions">
-          <button type="button" disabled={index === 0} onClick={() => { const next = [...value]; [next[index - 1], next[index]] = [next[index], next[index - 1]]; onChange(next); }}>↑ Выше</button>
-          <button type="button" disabled={index === value.length - 1} onClick={() => { const next = [...value]; [next[index + 1], next[index]] = [next[index], next[index + 1]]; onChange(next); }}>↓ Ниже</button>
-          <button type="button" onClick={() => onChange([...value.slice(0, index + 1), newItem(item), ...value.slice(index + 1)])}>Дублировать</button>
-          <button type="button" className="admin-danger" onClick={() => { if (window.confirm('Удалить этот элемент? Изменения применятся после сохранения.')) onChange(value.filter((_, i) => i !== index)); }}>Удалить</button>
-        </div>
-        <Field value={item} fieldKey={fieldKey} template={template?.find?.(candidate => typeof candidate === 'object' && candidate !== null && typeof item === 'object' && item !== null && ((item.type && candidate.type === item.type) || (item.id && candidate.id === item.id))) ?? example} upload={upload} depth={depth + 1} onChange={next => onChange(value.map((old, i) => i === index ? next : old))} />
-      </details>)}
-      {models.length > 1 && <label>Тип нового блока <select aria-label="Тип нового блока" value={newType || models[0].type} onChange={e => setNewType(e.target.value)}>{models.map(model => <option key={model.type} value={model.type}>{model.title || model.label || model.type}</option>)}</select></label>}
-      {example !== undefined && <button type="button" onClick={() => onChange([...value, newItem(selectedModel)])}>+ Добавить элемент</button>}
+    const isBlocks = fieldKey === 'blocks';
+    return <div className={`admin-array${isBlocks ? ' admin-blocks' : ''}`}>
+      {value.map((item, index) => {
+        const name = String(itemName(item, index));
+        const action = callback => e => { e.preventDefault(); e.stopPropagation(); callback(); };
+        return <details key={item?.id ?? index} open={depth < 1} className="admin-item">
+          <summary><ChevronDown size={17} className="admin-chevron" aria-hidden="true" /><span className="admin-item-title" title={name}>{name}</span><span className="admin-actions">
+            <button type="button" className="admin-icon-button" title="Переместить выше" aria-label={`Переместить выше: ${name}`} disabled={index === 0} onClick={action(() => { const next = [...value]; [next[index - 1], next[index]] = [next[index], next[index - 1]]; onChange(next); })}><ArrowUp size={17} /></button>
+            <button type="button" className="admin-icon-button" title="Переместить ниже" aria-label={`Переместить ниже: ${name}`} disabled={index === value.length - 1} onClick={action(() => { const next = [...value]; [next[index + 1], next[index]] = [next[index], next[index + 1]]; onChange(next); })}><ArrowDown size={17} /></button>
+            <button type="button" className="admin-icon-button" title="Дублировать" aria-label={`Дублировать: ${name}`} onClick={action(() => onChange([...value.slice(0, index + 1), newItem(item), ...value.slice(index + 1)]))}><Copy size={17} /></button>
+            <button type="button" className="admin-icon-button admin-danger" title="Удалить" aria-label={`Удалить: ${name}`} onClick={action(() => { if (window.confirm('Удалить этот элемент? Изменения применятся после сохранения.')) onChange(value.filter((_, i) => i !== index)); })}><Trash2 size={17} /></button>
+          </span></summary>
+          <div className="admin-item-content"><Field value={item} fieldKey={fieldKey} template={template?.find?.(candidate => typeof candidate === 'object' && candidate !== null && typeof item === 'object' && item !== null && ((item.type && candidate.type === item.type) || (item.id && candidate.id === item.id))) ?? example} upload={upload} depth={depth + 1} onChange={next => onChange(value.map((old, i) => i === index ? next : old))} /></div>
+        </details>;
+      })}
+      <AddItemDialog models={models} example={example} isBlocks={isBlocks} onAdd={item => onChange([...value, item])} />
     </div>;
   }
-  if (value !== null && typeof value === 'object') return <div className="admin-fields">{Object.entries(value).map(([key, child]) => {
+  if (value !== null && typeof value === 'object') return <div className="admin-fields">{Object.entries(value).filter(([key]) => !hiddenFields.has(key)).map(([key, child]) => {
     const structured = child !== null && typeof child === 'object';
     const content = <Field value={child} fieldKey={key} template={template?.[key]} upload={upload} depth={depth + 1} onChange={next => onChange({ ...value, [key]: next })} />;
+    if (key === 'blocks') return <React.Fragment key={key}>{content}</React.Fragment>;
+    if (typeof child === 'boolean') return <div className="admin-field admin-boolean-field" key={key}>{content}</div>;
     return structured ? <details key={key} open={depth === 0} className="admin-group"><summary>{title(key)}</summary>{content}</details> : <div className="admin-field" key={key}><label>{title(key)}</label>{content}</div>;
   })}</div>;
-  if (typeof value === 'boolean') return <label className="admin-check"><input type="checkbox" checked={value} onChange={e => onChange(e.target.checked)} />{value ? 'Да' : 'Нет'}</label>;
+  if (typeof value === 'boolean') return <label className="admin-switch-label"><span>{title(fieldKey)}</span><input className="admin-switch" type="checkbox" role="switch" aria-label={title(fieldKey)} checked={value} onChange={e => onChange(e.target.checked)} /></label>;
   if (typeof value === 'number') return <input aria-label={title(fieldKey)} type="number" value={value} onChange={e => onChange(Number(e.target.value))} />;
   if (value === null) return <span>Не задано</span>;
   return <div>
     {value.length > 100 || /description|text|about|message/i.test(fieldKey)
       ? <textarea aria-label={title(fieldKey)} rows={4} value={value} onChange={e => onChange(e.target.value)} />
-      : <input aria-label={title(fieldKey)} type="text" readOnly={['type', 'id', 'popupId'].includes(fieldKey)} value={value} onChange={e => onChange(e.target.value)} />}
-    {mediaField(fieldKey) && <label className="admin-upload">Загрузить файл<input type="file" accept="image/png,image/jpeg,image/webp,image/gif,video/mp4,video/webm,audio/mpeg,application/pdf" onChange={async e => { const file = e.target.files?.[0]; if (file) { const url = await upload(file); if (url) onChange(url); } e.target.value = ''; }} /></label>}
+      : <input aria-label={title(fieldKey)} type="text" value={value} onChange={e => onChange(e.target.value)} />}
+    {mediaField(fieldKey) && <UploadControl upload={upload} onUploaded={onChange} />}
   </div>;
 }
 
@@ -127,10 +183,9 @@ export default function Admin() {
       <button disabled={busy}>{busy ? 'Вход…' : 'Войти'}</button>
     </form> : content && <>
       <div className="admin-toolbar"><strong>{dirty ? 'Есть несохранённые изменения' : 'Контент сохранён'}</strong><button type="button" disabled={busy || !dirty} onClick={save}>Сохранить изменения</button><button type="button" disabled={busy} onClick={async () => { if (dirty && !window.confirm('Выйти без сохранения?')) return; try { await mutation('/api/admin/logout', { method: 'POST' }); setDirty(false); setContent(null); setAuth({ authenticated: false }); } catch (e) { setStatus(e.message); } }}>Выйти</button></div>
-      <p className="admin-hint">Откройте раздел и нужный блок. Изменяйте поля, добавляйте, дублируйте, удаляйте и перемещайте элементы. Изменения публикуются кнопкой «Сохранить изменения». Для нового типа блока главной дублируйте существующий блок нужного типа.</p>
       <nav className="admin-tabs" aria-label="Разделы редактора">{Object.keys(content).filter(key => key !== 'version').map(key => <button type="button" disabled={busy} key={key} aria-pressed={active === key} onClick={() => setActive(key)}>{title(key)}</button>)}<button type="button" disabled={busy} aria-pressed={active === '_media'} onClick={() => setActive('_media')}>Файлы</button></nav>
-      {active === '_media' ? <section><h2>Загруженные файлы</h2><label className="admin-upload">Загрузить файл<input disabled={busy} type="file" onChange={e => { if (e.target.files?.[0]) upload(e.target.files[0]); e.target.value = ''; }} /></label><p>Скопируйте адрес файла в поле изображения, видео или ссылки. Удаление файла необратимо; сначала уберите его из контента.</p>{files.map(file => <div className="admin-media" key={file.url}><a href={file.url} target="_blank" rel="noreferrer">{file.name || file.url.split('/').pop()}</a><input readOnly aria-label="Адрес файла" value={file.url} /><button type="button" disabled={busy} onClick={async () => { if (!window.confirm('Удалить файл навсегда?')) return; try { await mutation(`/api/admin/uploads/${encodeURIComponent(file.url.split('/').pop())}`, { method: 'DELETE' }); setFiles((await api('/api/admin/uploads')).files || []); setStatus('Файл удалён.'); } catch (e) { setStatus(e.message); } }}>Удалить</button></div>)}</section>
-        : Object.hasOwn(content, active) && <section><h2>{title(active)}</h2><fieldset disabled={busy} className="admin-editor"><Field value={content[active]} fieldKey={active} template={defaults[active]} upload={upload} onChange={value => { setContent({ ...content, [active]: value }); setDirty(true); }} /></fieldset></section>}
+      {active === '_media' ? <section><h2>Загруженные файлы</h2><fieldset disabled={busy} className="admin-editor"><UploadControl upload={upload} /></fieldset><p>Скопируйте адрес файла в поле изображения, видео или ссылки. Удаление файла необратимо; сначала уберите его из контента.</p>{files.map(file => <div className="admin-media" key={file.url}><a href={file.url} target="_blank" rel="noreferrer">{file.name || file.url.split('/').pop()}</a><input readOnly aria-label="Адрес файла" value={file.url} /><button type="button" disabled={busy} onClick={async () => { if (!window.confirm('Удалить файл навсегда?')) return; try { await mutation(`/api/admin/uploads/${encodeURIComponent(file.url.split('/').pop())}`, { method: 'DELETE' }); setFiles((await api('/api/admin/uploads')).files || []); setStatus('Файл удалён.'); } catch (e) { setStatus(e.message); } }}>Удалить</button></div>)}</section>
+        : Object.hasOwn(content, active) && <section><h2>{title(active)}</h2><fieldset disabled={busy} className="admin-editor"><Field value={content[active]} fieldKey={active} template={defaults[active]} upload={upload} onChange={value => { setContent(previous => ({ ...previous, [active]: value })); setDirty(true); }} /></fieldset></section>}
     </>}
   </main>;
 }
