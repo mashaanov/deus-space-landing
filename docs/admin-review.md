@@ -16,4 +16,4 @@ Empty collections can be restored from the bundled schema, including empty strin
 
 Automated checks: `npm test` covers login/origin/CSRF, persistence/session expiry/logout, concurrent 20-attempt lockout across restart and expiry, upload type/traversal checks, content limits/URL/prototype validation, structural validation and full seed save/read after restart. Run `npm run build` for frontend compilation. CI runs these checks for every push.
 
-The review accepted the requested HTTP deployment. Browser smoke is performed separately before production deployment. Existing calendar CSS and dependency bundling warnings are unrelated to this change.
+The review accepted the requested HTTP deployment. Parent browser smoke passed: login, edit/save/public publication, all public routes, absence of public administration links, upload/retrieval, logout, and zero JavaScript errors. Separate mobile checks passed duplication/save/deletion/save and viewport layout. Feature CI pipeline 264 passed all six integration tests and the production build. Existing calendar CSS and dependency bundling warnings are unrelated to this change.
