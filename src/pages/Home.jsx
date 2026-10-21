@@ -1,4 +1,4 @@
-// Home.jsx - ФИОЛЕТОВЫЙ ПРОДАЮЩИЙ ЛЕНДИНГ с максимальным стилем и фишками
+// Home.jsx - СВЕТЛЫЙ ПРОДАЮЩИЙ ЛЕНДИНГ в фиолетовых тонах
 import React, { useState, useEffect, useRef } from "react";
 import Layout from "../components/Layout";
 import Carousel from "../components/Carousel";
@@ -36,7 +36,11 @@ import {
   TrendingUp,
   PartyPopper,
   Gem,
+  Mail,
+  Shield,
 } from "lucide-react";
+import Footer from "../components/Footer.jsx";
+import { Link } from "react-router-dom";
 
 const Home = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -60,17 +64,17 @@ const Home = () => {
 
   return (
     <Layout>
-      <div>
-        {/* Фоновые эффекты с параллаксом */}
+      <div className="bg-gradient-to-br from-white via-purple-50 to-purple-100">
+        {/* Фоновые эффекты с параллаксом - светлые */}
         <div
           className="fixed inset-0 overflow-hidden pointer-events-none"
           style={{
             transform: `translate(${mousePosition.x}px, ${mousePosition.y}px)`,
           }}
         >
-          <div className="absolute top-20 left-10 w-96 h-96 rounded-full blur-[120px]" />
-          <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-700/20 rounded-full blur-[120px] animate-pulse delay-1000" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-500/10 rounded-full blur-[100px] animate-spin-slow" />
+          <div className="absolute top-20 left-10 w-96 h-96 rounded-full blur-[120px] bg-purple-200/60" />
+          <div className="absolute bottom-20 right-10 w-96 h-96 rounded-full blur-[120px] bg-purple-300/40 animate-pulse delay-1000" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full blur-[100px] bg-purple-200/30 animate-spin-slow" />
         </div>
 
         <div className="relative z-10">
@@ -81,13 +85,13 @@ const Home = () => {
             <div className="container mx-auto px-4">
               <div className="relative inline-block">
                 <h1 className="text-5xl md:text-7xl font-black mb-4 relative">
-                  <span className="bg-gradient-to-r from-purple-500 via-purple-400 to-purple-600 bg-clip-text text-transparent animate-gradient">
+                  <span className="bg-gradient-to-r from-purple-600 via-purple-500 to-purple-700 bg-clip-text text-transparent animate-gradient">
                     Выберите любимую группу
                   </span>
                 </h1>
-                <div className="absolute -top-6 -right-8 animate-bounce-slow">
-                  <Sparkles size={32} className="text-purple-400" />
-                </div>
+                <p className="text-gray-600 text-lg md:text-xl mt-2">
+                  Профессиональные музыкальные коллективы для вашего мероприятия
+                </p>
               </div>
             </div>
           </div>
@@ -97,8 +101,8 @@ const Home = () => {
             <Carousel />
           </div>
 
-          {/* СОЦИАЛЬНОЕ ДОКАЗАТЕЛЬСТВО С СЧЕТЧИКАМИ */}
-          <div className="bg-gradient-to-r from-purple-950/30 to-transparent py-12 my-12 border-y border-purple-500/20">
+          {/* СОЦИАЛЬНОЕ ДОКАЗАТЕЛЬСТВО С СЧЕТЧИКАМИ - светлая версия */}
+          <div className="bg-gradient-to-r from-purple-100/80 to-transparent py-12 my-12 border-y border-purple-200">
             <div className="container mx-auto px-4">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
                 {[
@@ -127,406 +131,288 @@ const Home = () => {
                     <div className="relative inline-block">
                       <stat.icon
                         size={36}
-                        className="text-purple-400 mx-auto mb-3 group-hover:scale-110 transition-transform"
+                        className="text-purple-500 mx-auto mb-3 group-hover:scale-110 transition-transform"
                       />
                     </div>
-                    <div className="text-4xl md:text-5xl font-bold text-white mb-1">
+                    <div className="text-4xl md:text-5xl font-bold text-purple-900 mb-1">
                       {stat.value}
                     </div>
-                    <div className="text-gray-400 text-sm">{stat.label}</div>
+                    <div className="text-gray-500 text-sm">{stat.label}</div>
                   </div>
                 ))}
               </div>
             </div>
           </div>
 
-          {/* ЦЕНЫ С АНИМАЦИЕЙ */}
+          {/* ЦЕНЫ С АНИМАЦИЕЙ - светлая версия */}
           <div className="container mx-auto px-4 py-8">
-            <h2 className="text-3xl md:text-4xl font-bold text-center text-white mb-12">
-              Простые <span className="text-purple-400">цены</span>
-              <div className="w-20 h-1 bg-gradient-to-r from-purple-500 to-transparent mx-auto mt-2" />
+            <h2 className="text-3xl md:text-4xl font-bold text-center text-purple-900 mb-12">
+              Прейскурант
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
               {/* СТАНДАРТ - до 30 человек */}
-              <div className="relative bg-gradient-to-br from-white/10 to-white/5 rounded-2xl p-6 text-center border border-white/20 hover:border-purple-500/60 transition-all duration-500 group cursor-pointer hover:-translate-y-3 hover:shadow-2xl hover:shadow-purple-500/30 backdrop-blur-sm">
-                {/* Легкое свечение */}
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-
-                <div className="relative">
+              <Link
+                className="relative bg-white rounded-2xl p-6 text-center border border-purple-200 hover:border-purple-400 transition-all duration-500 group cursor-pointer hover:-translate-y-3 hover:shadow-xl hover:shadow-purple-200 flex flex-col"
+                to="/order"
+                state=""
+              >
+                <div className="relative flex flex-col h-full">
                   <div className="flex justify-center mb-4 group-hover:scale-110 transition-transform">
-                    <div className="p-3 rounded-full bg-purple-500/10 group-hover:bg-purple-500/20 transition-colors">
-                      <Mic size={40} className="text-purple-400" />
+                    <div className="p-3 rounded-full bg-purple-100 group-hover:bg-purple-200 transition-colors">
+                      <Mic size={40} className="text-purple-500" />
                     </div>
                   </div>
-                  <div className="text-2xl font-bold text-white mb-1">
+                  <div className="text-2xl font-bold text-purple-900 mb-1">
                     Стандарт
                   </div>
-                  <div className="text-purple-400 text-sm mb-2">
+                  <div className="text-purple-500 text-sm mb-2">
                     до 30 человек
                   </div>
-                  <div className="text-4xl font-bold text-white mb-4">
-                    50 000 ₽
+                  <div className="text-4xl font-bold text-purple-900 mb-4">
+                    от 50 000 ₽
                   </div>
-                  <div className="h-px bg-gradient-to-r from-transparent via-purple-500/30 to-transparent my-4" />
-                  <div className="space-y-2 text-left mb-6">
-                    <div className="flex items-center gap-2 text-gray-300 text-sm">
+                  <div className="h-px bg-gradient-to-r from-transparent via-purple-200 to-transparent my-4" />
+                  <div className="space-y-2 text-left mb-6 flex-grow">
+                    <div className="flex items-center gap-2 text-gray-600 text-sm">
                       <CheckCircle
                         size={14}
-                        className="text-purple-400 flex-shrink-0"
+                        className="text-purple-500 flex-shrink-0"
                       />{" "}
                       Живой звук
                     </div>
-                    <div className="flex items-center gap-2 text-gray-300 text-sm">
+                    <div className="flex items-center gap-2 text-gray-600 text-sm">
                       <CheckCircle
                         size={14}
-                        className="text-purple-400 flex-shrink-0"
+                        className="text-purple-500 flex-shrink-0"
                       />{" "}
-                      Базовая свет
+                      Базовый звук + свет
                     </div>
-                    <div className="flex items-center gap-2 text-gray-300 text-sm">
+                    <div className="flex items-center gap-2 text-gray-600 text-sm">
                       <CheckCircle
                         size={14}
-                        className="text-purple-400 flex-shrink-0"
+                        className="text-purple-500 flex-shrink-0"
                       />{" "}
                       1 перерыв
                     </div>
-                    <div className="flex items-center gap-2 text-gray-300 text-sm">
+                    <div className="flex items-center gap-2 text-gray-600 text-sm">
                       <CheckCircle
                         size={14}
-                        className="text-purple-400 flex-shrink-0"
+                        className="text-purple-500 flex-shrink-0"
                       />{" "}
                       Длительность: до 3 часов
                     </div>
                   </div>
-                  <button className="w-full py-3 rounded-xl bg-purple-600/20 hover:bg-purple-600 text-purple-300 hover:text-white font-medium transition-all border border-purple-500/30 hover:border-purple-400">
-                    Выбрать
+                  <button className="w-full py-3 rounded-xl bg-purple-100 hover:bg-purple-500 text-purple-600 hover:text-white font-medium transition-all border border-purple-200 hover:border-purple-500 cursor-pointer mt-auto">
+                    Выбрать тариф
                   </button>
                 </div>
-              </div>
+              </Link>
 
-              {/* РАСШИРЕННЫЙ - от 30 до 250 человек (ХИТ) */}
-              <div className="relative bg-gradient-to-br from-purple-900/60 to-purple-800/30 rounded-2xl p-6 text-center border-2 border-purple-500/80 hover:border-purple-400 transition-all duration-500 group cursor-pointer hover:-translate-y-3 scale-105 shadow-2xl shadow-purple-600/30">
-                {/* Яркое свечение */}
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-purple-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className="absolute -inset-px rounded-2xl bg-gradient-to-r from-purple-500/20 to-purple-600/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
-
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-purple-500 to-purple-600 text-white text-xs font-bold px-4 py-1.5 rounded-full flex items-center gap-1 shadow-lg">
-                  <Star size={12} fill="white" /> ХИТ ПРОДАЖ
-                </div>
-                <div className="absolute -top-2 -right-2 animate-ping-slow">
-                  <Flame size={24} className="text-orange-500" />
-                </div>
-
-                <div className="relative">
+              {/* РАСШИРЕННЫЙ - от 30 до 250 человек (ХИТ) - светлая версия */}
+              <Link
+                className="relative bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-6 text-center transition-all duration-500 group cursor-pointer hover:-translate-y-3 shadow-xl shadow-purple-300 flex flex-col"
+                to="/order"
+              >
+                <div className="relative flex flex-col h-full">
                   <div className="flex justify-center mb-4 group-hover:scale-110 transition-transform">
-                    <div className="p-3 rounded-full bg-purple-500/20">
-                      <PartyPopper size={40} className="text-purple-300" />
+                    <div className="p-3 rounded-full bg-white/20">
+                      <PartyPopper size={40} className="text-white" />
                     </div>
                   </div>
                   <div className="text-2xl font-bold text-white mb-1">
                     Расширенный
                   </div>
-                  <div className="text-purple-300 text-sm mb-2 font-medium">
+                  <div className="text-purple-200 text-sm mb-2 font-medium">
                     30-250 человек
                   </div>
                   <div className="text-4xl font-bold text-white mb-4">
-                    120 000 ₽
+                    от 120 000 ₽
                   </div>
-                  <div className="text-green-400 text-xs mb-3">
-                    🎁 Фотограф в подарок
-                  </div>
-                  <div className="h-px bg-gradient-to-r from-transparent via-purple-500/50 to-transparent my-4" />
-                  <div className="space-y-2 text-left mb-6">
-                    <div className="flex items-center gap-2 text-gray-200 text-sm">
+                  <div className="h-px bg-gradient-to-r from-transparent via-white/30 to-transparent my-4" />
+                  <div className="space-y-2 text-left mb-6 flex-grow">
+                    <div className="flex items-center gap-2 text-purple-100 text-sm">
                       <CheckCircle
                         size={14}
-                        className="text-purple-400 flex-shrink-0"
+                        className="text-purple-200 flex-shrink-0"
                       />{" "}
                       Проф. звук + свет
                     </div>
-                    <div className="flex items-center gap-2 text-gray-200 text-sm">
+                    <div className="flex items-center gap-2 text-purple-100 text-sm">
                       <CheckCircle
                         size={14}
-                        className="text-purple-400 flex-shrink-0"
+                        className="text-purple-200 flex-shrink-0"
                       />{" "}
                       Сет-лист на выбор
                     </div>
-                    <div className="flex items-center gap-2 text-gray-200 text-sm">
+                    <div className="flex items-center gap-2 text-purple-100 text-sm">
                       <CheckCircle
                         size={14}
-                        className="text-purple-400 flex-shrink-0"
+                        className="text-purple-200 flex-shrink-0"
                       />{" "}
                       2 перерыва
                     </div>
-                    <div className="flex items-center gap-2 text-gray-200 text-sm">
+                    <div className="flex items-center gap-2 text-purple-100 text-sm">
                       <CheckCircle
                         size={14}
-                        className="text-purple-400 flex-shrink-0"
+                        className="text-purple-200 flex-shrink-0"
                       />{" "}
                       Длительность: до 4 часов
                     </div>
                   </div>
-                  <button className="w-full py-3 rounded-xl bg-gradient-to-r from-purple-600 to-purple-500 text-white font-bold transition-all hover:scale-105 shadow-lg shadow-purple-600/50 hover:shadow-purple-600/80">
+                  <button className="w-full py-3 rounded-xl bg-white text-purple-600 font-bold transition-all hover:scale-105 shadow-lg shadow-purple-700/30 hover:shadow-purple-700/50 cursor-pointer mt-auto">
                     Выбрать тариф
                   </button>
                 </div>
-              </div>
-
-              {/* ПРОКАТ ОБОРУДОВАНИЯ */}
-              <div className="relative bg-gradient-to-br from-white/10 to-white/5 rounded-2xl p-6 text-center border border-white/20 hover:border-purple-500/60 transition-all duration-500 group cursor-pointer hover:-translate-y-3 hover:shadow-2xl hover:shadow-purple-500/30 backdrop-blur-sm">
-                <div className="relative">
-                  <div className="flex justify-center mb-4 group-hover:scale-110 transition-transform">
-                    <div className="p-3 rounded-full bg-purple-500/10 group-hover:bg-purple-500/20 transition-colors">
-                      <Volume2 size={40} className="text-purple-400" />
-                    </div>
-                  </div>
-                  <div className="text-2xl font-bold text-white mb-1">
-                    Прокат
-                  </div>
-                  <div className="text-purple-400 text-sm mb-2">
-                    оборудования
-                  </div>
-                  <div className="text-3xl font-bold text-white mb-4">
-                    от 15 000 ₽
-                  </div>
-                  <div className="h-px bg-gradient-to-r from-transparent via-purple-500/30 to-transparent my-4" />
-                  <div className="space-y-2 text-left mb-6">
-                    <div className="flex items-center gap-2 text-gray-300 text-sm">
-                      <CheckCircle
-                        size={14}
-                        className="text-purple-400 flex-shrink-0"
-                      />{" "}
-                      Звук, свет, сцена
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-300 text-sm">
-                      <CheckCircle
-                        size={14}
-                        className="text-purple-400 flex-shrink-0"
-                      />{" "}
-                      Микшерный пульт
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-300 text-sm">
-                      <CheckCircle
-                        size={14}
-                        className="text-purple-400 flex-shrink-0"
-                      />{" "}
-                      Сценические мониторы
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-300 text-sm">
-                      <CheckCircle
-                        size={14}
-                        className="text-purple-400 flex-shrink-0"
-                      />{" "}
-                      Доставка и настройка
-                    </div>
-                  </div>
-                  <button className="w-full py-3 rounded-xl bg-purple-600/20 hover:bg-purple-600 text-purple-300 hover:text-white font-medium transition-all border border-purple-500/30 hover:border-purple-400">
-                    Арендовать
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Дополнительный CTA текст */}
-            <div className="text-center mt-12">
-              <p className="text-gray-400 text-sm">
-                * Возможна индивидуальная смета под ваш праздник
-              </p>
+              </Link>
             </div>
           </div>
 
-          {/* БЛОК С ОТЗЫВАМИ В ВИДЕ КАРТОЧЕК */}
-          <div className="container mx-auto px-4 py-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-center text-white mb-12">
-              Что говорят <span className="text-purple-400">клиенты</span>
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          {/* БЛОК ОТЗЫВОВ — МОЩНОЕ СОЦДОКАЗАТЕЛЬСТВО */}
+          <div className="container mx-auto px-4 py-16 relative">
+            {/* Фоновый акцент */}
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-100/40 via-transparent to-purple-100/40 rounded-3xl -z-10" />
+
+            <div className="text-center mb-12">
+              <h2 className="text-4xl md:text-5xl font-black text-purple-900">
+                Нам доверяют{" "}
+                <span className="text-purple-500">самые важные</span> события
+              </h2>
+              <p className="text-gray-500 text-lg mt-2 max-w-2xl mx-auto">
+                98% клиентов рекомендуют нас друзьям. Убедитесь сами.
+              </p>
+            </div>
+
+            {/* ОТЗЫВЫ — КАРТОЧКИ С ЭФФЕКТОМ "ПРИЛИПАНИЯ" */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
               {[
                 {
-                  name: "Анна С.",
-                  event: "Корпоратив",
-                  text: "Ребята просто зажгли! Все гости в восторге, музыка на высоте!",
-                  stars: 5,
+                  name: "Анна Смирнова",
+                  event: "Корпоратив • 250 человек",
+                  text: "«Группа превратила скучный корпоратив в настоящий фестиваль! Люди не хотели уходить, а директор попросил контакты для следующего года. Это лучшие деньги, потраченные на мероприятие.»",
+                  avatar: "https://i.pravatar.cc/100?img=1",
+                  video: true,
+                  rating: 5,
+                  badge: "ТОП-отзыв",
                 },
                 {
-                  name: "Дмитрий К.",
-                  event: "Свадьба",
-                  text: "Лучшая группа для свадьбы! Гости танцевали до утра, спасибо!",
-                  stars: 5,
+                  name: "Дмитрий & Екатерина",
+                  event: "Свадьба • 120 гостей",
+                  text: "«Мы хотели, чтобы на свадьбе было душевно и драйвово. Эти ребята попали в точку! Гости танцевали даже во время ужина. Спасибо за идеальный вечер!»",
+                  avatar: "https://i.pravatar.cc/100?img=3",
+                  video: false,
+                  rating: 5,
+                  badge: "Лучшая свадьба",
                 },
                 {
-                  name: "Елена М.",
-                  event: "День рождения",
-                  text: "Очень профессионально, звук отличный, подход индивидуальный. 10/10",
-                  stars: 5,
+                  name: "Ольга Мельник",
+                  event: "День рождения • 50 человек",
+                  text: "«Я сомневалась, стоит ли брать живую музыку. Теперь скажу — ОБЯЗАТЕЛЬНО! Гости до сих пор вспоминают, как пели вместе с солистом. Эмоции — это главное.»",
+                  avatar: "https://i.pravatar.cc/100?img=5",
+                  video: false,
+                  rating: 5,
+                  badge: "Эмоциональный отзыв",
                 },
               ].map((review, i) => (
                 <div
                   key={i}
-                  className="bg-white/5 rounded-2xl p-6 border border-white/10 hover:border-purple-500/40 transition-all group hover:-translate-y-2"
+                  className="group bg-white/80 backdrop-blur-sm rounded-3xl p-6 border border-purple-200/50 shadow-lg hover:shadow-2xl hover:shadow-purple-300/40 transition-all duration-500 hover:-translate-y-3 hover:scale-[1.02] relative cursor-default"
                 >
-                  <div className="flex gap-1 mb-3">
-                    {[...Array(review.stars)].map((_, s) => (
-                      <Star
-                        key={s}
-                        size={16}
-                        fill="#a855f7"
-                        className="text-purple-400"
-                      />
-                    ))}
+                  {/* Бейдж */}
+                  <div className="absolute -top-3 -right-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white text-[10px] font-bold uppercase px-3 py-1 rounded-full shadow-lg shadow-purple-400/50">
+                    {review.badge}
                   </div>
-                  <p className="text-gray-300 text-sm mb-4">"{review.text}"</p>
-                  <div className="flex items-center justify-between">
+
+                  {/* Рейтинг + иконка видео */}
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex gap-1">
+                      {[...Array(review.rating)].map((_, s) => (
+                        <Star
+                          key={s}
+                          size={18}
+                          fill="#a855f7"
+                          className="text-purple-400"
+                        />
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Текст отзыва — с кавычками и курсивом */}
+                  <p className="text-gray-700 text-sm leading-relaxed mb-4 italic">
+                    {review.text}
+                  </p>
+
+                  {/* Автор */}
+                  <div className="flex items-center gap-3 border-t border-purple-100 pt-4">
+                    <img
+                      src={review.avatar}
+                      alt={review.name}
+                      className="w-12 h-12 rounded-full border-2 border-purple-300 object-cover"
+                    />
                     <div>
-                      <div className="text-white font-medium text-sm">
+                      <div className="text-purple-900 font-bold text-sm">
                         {review.name}
                       </div>
-                      <div className="text-gray-500 text-xs">
+                      <div className="text-gray-400 text-xs">
                         {review.event}
                       </div>
                     </div>
-                    <div className="text-purple-400 text-2xl">“</div>
                   </div>
+
+                  {/* Анимация "пульса" при наведении */}
+                  <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-purple-400/0 via-purple-400/5 to-purple-400/0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
                 </div>
               ))}
             </div>
           </div>
-
-          {/* ФОРМА ЗАЯВКИ С АНИМАЦИЕЙ */}
-          <div className="container mx-auto px-4 py-16">
-            <div className="max-w-4xl mx-auto bg-gradient-to-br from-purple-950/40 to-purple-900/20 rounded-2xl p-8 md:p-12 border border-purple-500/30 backdrop-blur-sm relative overflow-hidden">
-              <div className="absolute -top-20 -right-20 w-64 h-64 bg-purple-600/20 rounded-full blur-3xl" />
-              <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-purple-500/20 rounded-full blur-3xl" />
-
-              <div className="relative z-10 text-center mb-8">
-                <div className="inline-flex items-center gap-2 mb-4 px-4 py-1.5 rounded-full bg-purple-600/20 border border-purple-500/30 animate-pulse">
-                  <Sparkles size={14} className="text-purple-400" />
-                  <span className="text-purple-300 text-sm font-semibold">
-                    НЕ НАШЛИ ИДЕАЛЬНУЮ ГРУППУ?
-                  </span>
-                </div>
-
-                <h2 className="text-3xl md:text-5xl font-bold text-white mb-3">
-                  Мы подберём музыку <br />
-                  <span className="bg-gradient-to-r from-purple-400 to-purple-300 bg-clip-text text-transparent">
-                    под ваш бюджет
-                  </span>
-                </h2>
-
-                <p className="text-gray-400 text-lg">
-                  Оставьте заявку — и мы предложим 3 варианта в течение часа
-                </p>
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-3 max-w-2xl mx-auto">
-                <input
-                  type="text"
-                  placeholder="Ваше имя"
-                  className="flex-1 px-5 py-3 bg-black/50 border border-purple-500/30 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all"
-                />
-                <input
-                  type="tel"
-                  placeholder="+7 (___) ___-__-__"
-                  className="flex-1 px-5 py-3 bg-black/50 border border-purple-500/30 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all"
-                />
-                <button className="px-8 py-3 bg-gradient-to-r from-purple-600 to-purple-700 rounded-xl font-bold text-white hover:scale-105 transition-all duration-300 shadow-lg shadow-purple-600/30 flex items-center justify-center gap-2 whitespace-nowrap group">
-                  Подобрать
-                  <ChevronRight
-                    size={18}
-                    className="group-hover:translate-x-1 transition"
-                  />
-                </button>
-              </div>
-
-              <p className="text-xs text-gray-600 text-center mt-4">
-                Нажимая на кнопку, вы соглашаетесь с политикой
-                конфиденциальности
-              </p>
-            </div>
-          </div>
-
-          {/* ФУТЕР С ИНТЕРАКТИВОМ */}
-          <div className="border-t border-purple-500/20 py-10 bg-gradient-to-t from-purple-950/20 to-transparent">
-            <div className="container mx-auto px-4 text-center">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-purple-600/20 mb-4 hover:scale-110 transition-transform cursor-pointer">
-                <Phone size={32} className="text-purple-400" />
-              </div>
-              <div className="text-gray-400 text-sm mb-1">
-                Есть вопросы? Звоните
-              </div>
-              <a
-                href="tel:+78001234567"
-                className="text-3xl font-bold text-white hover:text-purple-400 transition-colors"
-              >
-                +7 (800) 123-45-67
-              </a>
-              <div className="flex items-center justify-center gap-6 mt-6">
-                <button className="text-gray-500 hover:text-purple-400 transition-colors text-sm">
-                  Политика
-                </button>
-                <span className="text-purple-500/30">•</span>
-                <button className="text-gray-500 hover:text-purple-400 transition-colors text-sm">
-                  Договор оферты
-                </button>
-                <span className="text-purple-500/30">•</span>
-                <button className="text-gray-500 hover:text-purple-400 transition-colors text-sm">
-                  Реквизиты
-                </button>
-              </div>
-              <div className="mt-6 text-gray-600 text-xs">
-                © 2024 Музыкальное агентство. Все права защищены.
-              </div>
-            </div>
-          </div>
+          <Footer />
         </div>
       </div>
 
       <style>{`
-      @keyframes float-noise {
-        0% {
-          transform: translateY(100vh);
-          opacity: 0;
+        @keyframes float-noise {
+          0% {
+            transform: translateY(100vh);
+            opacity: 0;
+          }
+          10% {
+            opacity: 0.8;
+          }
+          90% {
+            opacity: 0.5;
+          }
+          100% {
+            transform: translateY(-20vh);
+            opacity: 0;
+          }
         }
-        10% {
-          opacity: 0.8;
+
+        .animate-float-noise {
+          animation: float-noise linear infinite;
+          will-change: transform;
         }
-        90% {
-          opacity: 0.5;
+
+        @keyframes micro-float {
+          0% {
+            transform: translateY(100vh) scale(0);
+            opacity: 0;
+          }
+          20% {
+            transform: translateY(70vh) scale(1);
+            opacity: 0.7;
+          }
+          80% {
+            transform: translateY(30vh) scale(1);
+            opacity: 0.7;
+          }
+          100% {
+            transform: translateY(-10vh) scale(0);
+            opacity: 0;
+          }
         }
-        100% {
-          transform: translateY(-20vh);
-          opacity: 0;
+
+        .animate-micro-float {
+          animation: micro-float linear infinite;
         }
-      }
-
-      .animate-float-noise {
-        animation: float-noise linear infinite;
-        will-change: transform;
-      }
-
-
-      @keyframes micro-float {
-  0% {
-    transform: translateY(100vh) scale(0);
-    opacity: 0;
-  }
-  20% {
-    transform: translateY(70vh) scale(1);
-    opacity: 0.7;
-  }
-  80% {
-    transform: translateY(30vh) scale(1);
-    opacity: 0.7;
-  }
-  100% {
-    transform: translateY(-10vh) scale(0);
-    opacity: 0;
-  }
-}
-
-.animate-micro-float {
-  animation: micro-float linear infinite;
-}
       `}</style>
     </Layout>
   );

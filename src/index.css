@@ -3,11 +3,9 @@
 
 /* Определяем свои цвета прямо здесь */
 @theme {
-  --color-deus-black: #0a0a0a;
   --color-deus-white: #ffffff;
   --color-deus-gray: #9ca3af;
-  --color-deus-gray-dark: #1f1f1f;
-  --test: #303030;
+  --colorс: #1f1f1f;
 
   /* Фиолетовая палитра */
   --color-purple-50: #f5f3ff;
@@ -19,7 +17,6 @@
   --color-purple-600: #7c3aed;
   --color-purple-700: #6d28d9;
   --color-purple-800: #5b21b6;
-  --color-purple-900: #4c1d95;
 
   /* Градиенты */
   --bg-gradient-deus: linear-gradient(135deg, #0a0a0a 0%, #4c1d95 100%);

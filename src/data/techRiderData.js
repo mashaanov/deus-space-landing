@@ -15,6 +15,7 @@ import {
 export const techRiderData = [
   {
     id: "equipment",
+    type: 'equipment',
     label: "Звук",
     icon: "🎸",
     title: "Звук",
@@ -33,6 +34,7 @@ export const techRiderData = [
   },
   {
     id: "light",
+    type: "equipment",
     label: "Свет",
     icon: "💡",
     title: "Свет",
@@ -51,6 +53,7 @@ export const techRiderData = [
   },
   {
     id: "sound",
+    type: 'specialist',
     label: "Звукорежиссер",
     icon: "🎧",
     title: "Звукорежиссер",
@@ -70,6 +73,7 @@ export const techRiderData = [
   },
   {
     id: "light-operator",
+    type: 'specialist',
     label: "Светооператор",
     icon: "💡",
     title: "Светооператор",

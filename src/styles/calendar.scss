@@ -1,61 +1,197 @@
 .custom-calendar {
   .react-datepicker {
     font-family: inherit;
-    background-color: var(--color-deus-gray-dark);
+    border: 1px solid rgb(58, 48, 87);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow:
+      0 8px 24px rgba(0, 0, 0, 0.4),
+      0 0 0 1px rgba(97, 65, 148, 0.15);
   }
 
   .react-datepicker__header {
-    background-color: var(--color-deus-gray-dark)
+    background-color: var(--color-deus-gray-dark);
+    padding: 8px 0;
   }
 
   .react-datepicker__current-month {
     color: var(--color-purple-400);
     font-weight: 600;
+    font-size: 0.95rem;
+  }
+
+  .react-datepicker__day-names {
+    margin-top: 8px;
   }
 
   .react-datepicker__day-name {
     color: var(--color-purple-400);
     opacity: 0.7;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
 
+  // ── Дни ──────────────────────────────────────────────
   .react-datepicker__day {
     color: rgb(208, 204, 204);
     border-radius: 8px;
-    transition: all 0.2s ease;
+    margin: 2px;
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease,
+      transform 0.15s ease;
 
     &:hover {
       background-color: rgb(58, 48, 87);
-      color: rgb(97, 65, 148);
-      transform: scale(1.1);
+      color: var(--color-purple-400);
+      transform: scale(1.08);
     }
+
+    &:focus-visible {
+      outline: 2px solid var(--color-purple-400);
+      outline-offset: 1px;
+    }
+  }
+
+  // Дни соседнего месяца
+  .react-datepicker__day--outside-month {
+    color: rgba(208, 204, 204, 0.35);
   }
 
   .react-datepicker__day--selected {
     background-color: var(--color-purple-600);
-    color: white;
+  }
+
+  .react-datepicker__day--keyboard-selected,
+  .react-datepicker__month-text--keyboard-selected,
+  .react-datepicker__quarter-text--keyboard-selected,
+  .react-datepicker__year-text--keyboard-selected {
+     background-color: white;
+  }
+
+  // Выбранный день
+  .react-datepicker__day--selected,
+  .react-datepicker__day--keyboard-selected {
+    color: #fff;
     font-weight: 600;
-    box-shadow: 0 0 4px var(--color-purple-400);
+    box-shadow: 0 0 6px var(--color-purple-400);
+
+    &:hover {
+      background-color: var(--color-purple-600);
+      color: #fff;
+      transform: none;
+    }
   }
 
-  .react-datepicker__day--selected:hover {
-    color: white;
-    background-color: var(--color-purple-600) !important;
-  }
-
-  .react-datepicker__day--disabled {
-    color: black;
-  }
-
+  // Сегодняшний день — подчёркивание вместо смены цвета
   .react-datepicker__day--today {
     font-weight: 700;
-    color: var(--color-purple-400);
+    position: relative;
+
+    &::after {
+      content: "";
+      position: absolute;
+      bottom: 3px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background-color: var(--color-purple-400);
+    }
+  }
+
+  // Диапазон дат (если используется selectsRange)
+  .react-datepicker__day--in-range {
+    background-color: rgba(97, 65, 148, 0.35);
+    color: rgb(208, 204, 204);
+    border-radius: 0;
+  }
+
+  .react-datepicker__day--range-start,
+  .react-datepicker__day--range-end {
+    background-color: var(--color-purple-600);
+    color: #fff;
+    border-radius: 8px;
+  }
+
+  .react-datepicker__day--in-selecting-range {
+    background-color: rgba(97, 65, 148, 0.2);
+  }
+
+  // Задизейбленные дни — серый вместо чёрного (на тёмной теме чёрный нечитаем)
+  .react-datepicker__day--disabled {
+    color: rgba(208, 204, 204, 0.25);
+    cursor: not-allowed;
+
+    &:hover {
+      background-color: transparent;
+      color: rgba(208, 204, 204, 0.25);
+      transform: none;
+    }
+  }
+
+  // ── Навигация ────────────────────────────────────────
+  .react-datepicker__navigation {
+    top: 14px;
+
+    &:hover .react-datepicker__navigation-icon::before {
+      border-color: var(--color-purple-600);
+    }
   }
 
   .react-datepicker__navigation-icon::before {
     border-color: var(--color-purple-400);
+    transition: border-color 0.2s ease;
   }
 
+  // ── Прочее ───────────────────────────────────────────
   .react-datepicker__triangle {
     display: none;
+  }
+
+  // Выпадающие списки месяца/года (если включены)
+  .react-datepicker__month-dropdown,
+  .react-datepicker__year-dropdown {
+    background-color: var(--color-deus-gray-dark);
+    border: 1px solid rgb(58, 48, 87);
+    border-radius: 8px;
+  }
+
+  .react-datepicker__day.react-datepicker__day--outside-month {
+    color: #969696;
+  }
+
+  .react-datepicker__month-option,
+  .react-datepicker__year-option {
+    color: rgb(208, 204, 204);
+
+    &:hover {
+      background-color: rgb(58, 48, 87);
+    }
+
+    &--selected {
+      color: var(--color-purple-400);
+      font-weight: 600;
+    }
+  }
+
+  // Таймпикер (если используется showTimeSelect)
+  .react-datepicker__time-container {
+    border-left: 1px solid rgb(58, 48, 87);
+  }
+
+  .react-datepicker__time-list-item {
+    color: rgb(208, 204, 204);
+
+    &:hover {
+      background-color: rgb(58, 48, 87);
+    }
+
+    &--selected {
+      background-color: var(--color-purple-600);
+      color: #fff;
+    }
   }
 }

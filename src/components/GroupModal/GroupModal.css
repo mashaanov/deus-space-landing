@@ -1,0 +1,523 @@
+/* ========== МОДАЛЬНОЕ ОКНО ========== */
+
+/* Оверлей */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 9998;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+
+.modal-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Контейнер модалки - десктоп */
+.modal-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.9);
+  width: 90%;
+  max-width: 1000px;
+  max-height: 85vh;
+  z-index: 9999;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  background: #1a1a2e;
+  border-radius: 1rem;
+  box-shadow: 0 25px 50px -12px rgba(139, 92, 246, 0.3);
+  outline: none;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Важно! */
+}
+
+.modal-container.open {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* Внутренний контейнер для скролла */
+.modal-content-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 1rem;
+  background: #1a1a2e;
+}
+
+/* Мобильная версия - bottom sheet */
+@media (max-width: 768px) {
+  .modal-container {
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    transform: translateY(100%);
+    width: 100%;
+    max-width: 100%;
+    max-height: 92vh;
+    border-radius: 1.5rem 1.5rem 0 0;
+    background: #1a1a2e;
+  }
+
+  .modal-container.open {
+    transform: translateY(0);
+  }
+
+  .modal-container.closing {
+    transform: translateY(100%);
+    opacity: 1;
+    visibility: visible;
+  }
+  
+  .modal-content-wrapper {
+    border-radius: 1.5rem 1.5rem 0 0;
+  }
+}
+
+/* Десктопная анимация закрытия */
+.modal-container.closing {
+  transform: translate(-50%, -50%) scale(0.9);
+  opacity: 0;
+  visibility: visible;
+}
+
+/* Скрываем скроллбар для модалки на webkit-браузерах */
+.modal-content-wrapper::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal-content-wrapper::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.modal-content-wrapper::-webkit-scrollbar-thumb {
+  background: rgba(139, 92, 246, 0.4);
+  border-radius: 4px;
+}
+
+.modal-content-wrapper::-webkit-scrollbar-thumb:hover {
+  background: rgba(139, 92, 246, 0.6);
+}
+
+/* Индикатор свайпа на мобильных */
+.modal-swipe-indicator {
+  position: absolute;
+  top: 0.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 30;
+  width: 2.5rem;
+  height: 0.25rem;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 9999px;
+}
+
+@media (min-width: 769px) {
+  .modal-swipe-indicator {
+    display: none;
+  }
+}
+
+/* Анимации для элементов внутри модалки */
+.modal-item {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.3s ease;
+}
+
+.modal-item.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.modal-item-delay-1 {
+  transition-delay: 50ms;
+}
+.modal-item-delay-2 {
+  transition-delay: 100ms;
+}
+.modal-item-delay-3 {
+  transition-delay: 150ms;
+}
+.modal-item-delay-4 {
+  transition-delay: 200ms;
+}
+.modal-item-delay-5 {
+  transition-delay: 250ms;
+}
+.modal-item-delay-6 {
+  transition-delay: 300ms;
+}
+.modal-item-delay-7 {
+  transition-delay: 350ms;
+}
+.modal-item-delay-8 {
+  transition-delay: 400ms;
+}
+
+/* Галерея */
+.modal-gallery {
+  position: relative;
+  height: 320px;
+  flex-shrink: 0; /* Важно - не сжимается */
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .modal-gallery {
+    height: 380px;
+  }
+}
+
+/* Parallax контейнер */
+.modal-gallery-parallax {
+  width: 100%;
+  height: 100%;
+  transition: transform 8s ease;
+}
+
+.modal-gallery-parallax:hover {
+  transform: scale(1.05);
+}
+
+.modal-gallery-parallax img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Паттерн поверх галереи */
+.modal-pattern-overlay {
+  position: absolute;
+  inset: 0;
+  opacity: 0.05;
+  pointer-events: none;
+  background-image: radial-gradient(circle at 20% 50%, #8b5cf6 1px, transparent 1px);
+  background-size: 30px 30px;
+}
+
+/* Градиент на галерее */
+.modal-gallery-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, #1a1a2e, rgba(26, 26, 46, 0.3), transparent);
+}
+
+/* Кнопки навигации по фото */
+.modal-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2rem;
+  height: 2rem;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  opacity: 0;
+  border: none;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.8);
+  z-index: 10;
+}
+
+.modal-nav-btn:hover {
+  background: rgba(139, 92, 246, 0.7);
+  transform: translateY(-50%) scale(1.05);
+}
+
+.modal-nav-btn:focus {
+  outline: 2px solid #8b5cf6;
+  outline-offset: 2px;
+}
+
+.modal-gallery:hover .modal-nav-btn {
+  opacity: 1;
+}
+
+@media (max-width: 768px) {
+  .modal-nav-btn {
+    opacity: 0.6;
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+}
+
+.modal-nav-btn-left {
+  left: 0.75rem;
+}
+
+.modal-nav-btn-right {
+  right: 0.75rem;
+}
+
+/* Информация на галерее */
+.modal-gallery-info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 1.25rem;
+  z-index: 20;
+}
+
+/* Контентная область - скроллится */
+.modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.25rem 1.25rem 1.5rem;
+  space-y: 1.25rem;
+}
+
+@media (min-width: 768px) {
+  .modal-body {
+    padding: 1.5rem 1.5rem 2rem;
+  }
+}
+
+.modal-body > * + * {
+  margin-top: 1.25rem;
+}
+
+/* Статистика */
+.modal-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+@media (min-width: 768px) {
+  .modal-stats {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.modal-stat-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 0.75rem;
+  transition: all 0.3s ease;
+}
+
+.modal-stat-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: scale(1.05);
+}
+
+/* Преимущества */
+.modal-benefits {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
+}
+
+@media (min-width: 768px) {
+  .modal-benefits {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.modal-benefit {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.modal-benefit:hover {
+  background: rgba(139, 92, 246, 0.1);
+  transform: scale(1.02);
+}
+
+/* Видео */
+.modal-video-thumbnail {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.modal-video-thumbnail:hover {
+  box-shadow: 0 0 30px rgba(139, 92, 246, 0.2);
+}
+
+.modal-video-thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.modal-video-thumbnail:hover img {
+  transform: scale(1.05);
+}
+
+.modal-video-play-btn {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.modal-video-thumbnail:hover .modal-video-play-btn {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.modal-video-play-btn-circle {
+  width: 3.5rem;
+  height: 3.5rem;
+  background: #7c3aed;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.modal-video-thumbnail:hover .modal-video-play-btn-circle {
+  transform: scale(1.1);
+  box-shadow: 0 0 30px rgba(124, 58, 237, 0.5);
+}
+
+/* Репертуар */
+.modal-repertoire-tag {
+  padding: 0.25rem 0.625rem;
+  font-size: 0.625rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 9999px;
+  color: rgba(255, 255, 255, 0.7);
+  transition: all 0.3s ease;
+  cursor: default;
+}
+
+.modal-repertoire-tag:hover {
+  background: rgba(139, 92, 246, 0.2);
+  transform: scale(1.05);
+}
+
+/* Соцсети */
+.modal-social-links {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.modal-social-link {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 9999px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.75rem;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+.modal-social-link:hover {
+  transform: scale(1.05);
+}
+
+.modal-social-link-instagram:hover {
+  background: rgba(228, 64, 95, 0.2);
+  color: #fff;
+}
+
+.modal-social-link-youtube:hover {
+  background: rgba(255, 0, 0, 0.2);
+  color: #fff;
+}
+
+/* Кнопка заказа */
+.modal-order-btn {
+  position: relative;
+  width: 100%;
+  padding: 0.875rem;
+  background: linear-gradient(135deg, #7c3aed, #6d28d9);
+  border: none;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.modal-order-btn:hover {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  box-shadow: 0 10px 30px -10px rgba(124, 58, 237, 0.5);
+  transform: translateY(-1px);
+}
+
+.modal-order-btn:active {
+  transform: scale(0.98);
+}
+
+.modal-order-btn-ripple {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.15);
+  transform: scale(0);
+  border-radius: 0.75rem;
+  transition: transform 0.5s ease;
+}
+
+.modal-order-btn:hover .modal-order-btn-ripple {
+  transform: scale(1);
+}
+
+.modal-order-btn-content {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.modal-order-btn-icon {
+  transition: transform 0.3s ease;
+}
+
+.modal-order-btn:hover .modal-order-btn-icon {
+  transform: rotate(12deg);
+}
+
+/* Текст под кнопкой */
+.modal-footer-text {
+  text-align: center;
+  font-size: 0.625rem;
+  color: rgba(255, 255, 255, 0.3);
+  padding-top: 0.25rem;
+}
