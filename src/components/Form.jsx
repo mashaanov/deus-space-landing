@@ -1,5 +1,7 @@
+import { useContent, safeUrl } from "../content";
+import { sendEmail as sendOrderEmail } from "../services/emailApi";
 import React from "react";
-import { motion } from "framer-motion";
+import { motion as Motion } from "framer-motion";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { registerLocale } from "react-datepicker";
@@ -15,12 +17,12 @@ import { useOrderForm } from "../hooks/useOrderForm";
 import { Controller } from "react-hook-form";
 import ru from "date-fns/locale/ru";
 import toast, { Toaster } from "react-hot-toast";
-import emailjs from "@emailjs/browser";
+
 
 registerLocale("ru", ru);
 
 // Инициализируем EmailJS
-emailjs.init("Z9D-_0IOzOhdDMsmy"); // Замените на ваш Public Key
+
 
 // Кастомный инпут для даты
 const DatePickerCustom = ({ value, onClick }) => {
@@ -112,8 +114,10 @@ const InputField = ({ label, icon: Icon, error, ...props }) => (
 );
 
 const Form = ({ location, initialGroup = "" }) => {
-  const selectedGroup = location.state?.selectedGroup || initialGroup;
-  const { form, groups, selectedGroupData, isSubmitting, onSubmit } =
+  const {form: labels} = useContent();
+  const [sending, setSending] = React.useState(false);
+  const selectedGroup = location?.state?.selectedGroup || initialGroup;
+  const { form, groups, selectedGroupData,  } =
     useOrderForm(selectedGroup);
 
   const {
@@ -128,49 +132,18 @@ const Form = ({ location, initialGroup = "" }) => {
 
   const equipment = watch("equipment");
 
-  // Функция отправки через EmailJS
-  const sendEmail = async (formData) => {
-    // Получаем название группы из списка
-    const groupLabel =
-      groups.find((g) => g.value === formData.group)?.label || formData.group;
-
-    // Подготовка данных для EmailJS
-    const templateParams = {
-      to_email: "deus.space.orders@gmail.com",
-      from_name: formData.name,
-      from_phone: formData.phone,
-      event_date: new Date(formData.eventDate).toLocaleDateString("ru-RU", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      }),
-      group: groupLabel,
-      equipment: formData.equipment,
-      location: formData.location,
-      current_year: new Date().getFullYear(),
-      // Можно добавить дополнительные поля
-      reply_to: formData.phone, // для быстрого ответа
-    };
-
-    try {
-      const response = await emailjs.send(
-        "service_0g718s9", // Замените на ваш Service ID
-        "template_4kspjub", // Замените на ваш Template ID
-        templateParams,
-      );
-
-      console.log("✅ Email sent successfully:", response);
-      return response;
-    } catch (error) {
-      console.error("❌ EmailJS error:", error);
-      throw error;
-    }
+  const isSubmitting = sending;
+  const sendEmail = async (data) => {
+    const result = await sendOrderEmail({...data, group: groups.find(g => g.value === data.group)?.label || data.group, eventDate: new Date(data.eventDate).toLocaleDateString('ru-RU')});
+    if (!result.success) throw new Error(result.message);
   };
 
   // Обертка для onSubmit с тостами
   const handleFormSubmit = async (data) => {
+    if (sending) return;
+    setSending(true);
     // Показываем тост загрузки
-    const toastId = toast.loading("📨 Отправка заявки...", {
+    const toastId = toast.loading(labels.loading, {
       style: {
         background: "#1a1a2e",
         border: "1px solid rgba(139, 92, 246, 0.5)",
@@ -182,14 +155,9 @@ const Form = ({ location, initialGroup = "" }) => {
       // Отправляем данные через EmailJS
       await sendEmail(data);
 
-      // Если есть оригинальный onSubmit из useOrderForm, вызываем его
-      if (onSubmit) {
-        await onSubmit(data);
-      }
-
       // Успешный тост
       toast.success(
-        "✅ Заявка успешно отправлена! Мы свяжемся с вами в ближайшее время.",
+        labels.success,
         {
           id: toastId,
           duration: 6000,
@@ -209,30 +177,8 @@ const Form = ({ location, initialGroup = "" }) => {
     } catch (error) {
       console.error("Form submission error:", error);
 
-      let errorMessage =
-        "Не удалось отправить заявку. Пожалуйста, попробуйте еще раз.";
-
-      // Детальная обработка ошибок EmailJS
-      if (error.status === 400) {
-        errorMessage =
-          "Ошибка в данных формы. Проверьте правильность заполнения.";
-      } else if (error.status === 401) {
-        errorMessage =
-          "Ошибка авторизации EmailJS. Пожалуйста, свяжитесь с администратором.";
-      } else if (error.status === 429) {
-        errorMessage =
-          "Слишком много запросов. Подождите немного и попробуйте снова.";
-      } else if (error.text) {
-        try {
-          const errorData = JSON.parse(error.text);
-          errorMessage = errorData.message || errorMessage;
-        } catch {
-          errorMessage = error.text || errorMessage;
-        }
-      }
-
       // Тост ошибки
-      toast.error(`❌ ${errorMessage}`, {
+      toast.error(labels.error, {
         id: toastId,
         duration: 8000,
         style: {
@@ -241,7 +187,7 @@ const Form = ({ location, initialGroup = "" }) => {
           color: "#fff",
         },
       });
-    }
+    } finally { setSending(false); }
   };
 
   return (
@@ -272,7 +218,7 @@ const Form = ({ location, initialGroup = "" }) => {
         }}
       />
 
-      <motion.form
+      <Motion.form
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         onSubmit={handleSubmit(handleFormSubmit)}
@@ -281,12 +227,12 @@ const Form = ({ location, initialGroup = "" }) => {
         {/* Группа + Превью в одной строке */}
         <div className="grid md:grid-cols-2 gap-4 mb-4">
           <SelectField
-            label="Кавер-группа"
+            label={labels.group}
             icon={Users}
             error={errors.group?.message}
             {...register("group")}
           >
-            <option value="">Выберите группу</option>
+            <option value="">{labels.groupPlaceholder}</option>
             {groups.map((g) => (
               <option key={g.value} value={g.value}>
                 {g.label}
@@ -296,14 +242,14 @@ const Form = ({ location, initialGroup = "" }) => {
 
           {/* Мини-превью выбранной группы */}
           {selectedGroupData && (
-            <motion.div
+            <Motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               className="flex items-center gap-3 px-4 py-2 bg-[var(--color-purple-500)]/5 rounded-lg border border-[var(--color-purple-400)]"
             >
               <div className="w-10 h-10 rounded-full overflow-hidden bg-[var(--color-purple-500)]/20 flex-shrink-0">
                 <img
-                  src={selectedGroupData.image}
+                  src={safeUrl(selectedGroupData.image)}
                   alt=""
                   className="w-full h-full object-cover"
                 />
@@ -316,28 +262,17 @@ const Form = ({ location, initialGroup = "" }) => {
                   {selectedGroupData.genre}
                 </p>
               </div>
-            </motion.div>
+            </Motion.div>
           )}
         </div>
 
         {/* Аппаратура */}
         <div className="mb-4">
           <label className="block text-sm font-medium text-[var(--color-deus-white)]/70 mb-1.5">
-            Формат аппаратуры <span className="text-red-400">*</span>
+            {labels.equipment} <span className="text-red-400">*</span>
           </label>
           <div className="grid grid-cols-2 gap-3">
-            {[
-              {
-                title: "До 30 человек",
-                desc: "Базовый набор",
-                value: "До 30 человек",
-              },
-              {
-                title: "30-250 человек",
-                desc: "Расширенный набор",
-                value: "30-250 человек",
-              },
-            ].map((option) => (
+            {labels.equipmentOptions.map((option) => (
               <button
                 key={option.value}
                 type="button"
@@ -369,7 +304,7 @@ const Form = ({ location, initialGroup = "" }) => {
         <div className="grid md:grid-cols-2 gap-4 mb-4">
           <div className="space-y-1.5 custom-calendar">
             <label className="block text-sm font-medium text-[var(--color-deus-white)]/70">
-              Дата <span className="text-red-400">*</span>
+              {labels.date} <span className="text-red-400">*</span>
             </label>
             <Controller
               name="eventDate"
@@ -391,10 +326,10 @@ const Form = ({ location, initialGroup = "" }) => {
           </div>
 
           <InputField
-            label="Место"
+            label={labels.location}
             icon={MapPin}
             error={errors.location?.message}
-            placeholder="Город, площадка"
+            placeholder={labels.locationPlaceholder}
             {...register("location")}
           />
         </div>
@@ -402,24 +337,24 @@ const Form = ({ location, initialGroup = "" }) => {
         {/* Имя и телефон */}
         <div className="grid md:grid-cols-2 gap-4 mb-6">
           <InputField
-            label="Ваше имя"
+            label={labels.name}
             icon={User}
             error={errors.name?.message}
-            placeholder="Иван Иванов"
+            placeholder={labels.namePlaceholder}
             {...register("name")}
           />
 
           <InputField
-            label="Телефон"
+            label={labels.phone}
             icon={Phone}
             error={errors.phone?.message}
-            placeholder="+7 (999) 123-45-67"
+            placeholder={labels.phonePlaceholder}
             {...register("phone")}
           />
         </div>
 
         {/* Кнопка отправки */}
-        <motion.button
+        <Motion.button
           type="submit"
           disabled={isSubmitting}
           whileHover={{ scale: 1.01 }}
@@ -436,18 +371,18 @@ const Form = ({ location, initialGroup = "" }) => {
           {isSubmitting ? (
             <span className="flex items-center justify-center gap-2">
               <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              Отправка...
+              {labels.submitting}
             </span>
           ) : (
-            "Заказать выступление"
+            labels.submit
           )}
-        </motion.button>
+        </Motion.button>
 
         {/* Конфиденциальность */}
         <p className="text-center text-xs text-[var(--color-deus-white)]/30 mt-4">
-          Нажимая кнопку, вы соглашаетесь с обработкой персональных данных
+          {labels.privacy}
         </p>
-      </motion.form>
+      </Motion.form>
     </>
   );
 };

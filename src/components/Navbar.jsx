@@ -1,8 +1,10 @@
+import { useContent, safeUrl } from "../content";
 import React, { useState, useEffect } from "react";
 import { Music, Menu, X, ChevronRight } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
 const Navbar = () => {
+  const { site } = useContent();
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
@@ -71,7 +73,7 @@ const Navbar = () => {
                   text-transparent
                 "
               >
-                ДЕУС СПЭЙС
+                {site.brand}
               </div>
 
               <div
@@ -83,7 +85,7 @@ const Navbar = () => {
       mt-0.5
       "
               >
-                музыкальное агентство
+                {site.tagline}
               </div>
             </div>
           </Link>
@@ -92,14 +94,10 @@ const Navbar = () => {
           <div className="hidden md:flex items-center gap-8 lg:gap-12">
             {/* Навигация */}
             <div className="flex items-center gap-6 lg:gap-8">
-              {[
-                { path: "/", label: "Главная" },
-                { path: "/tech-rider", label: "Команда и оборудование" },
-                { path: "/order", label: "Контакты" },
-              ].map((item) => (
+              {site.nav.map((item) => (
                 <Link
                   key={item.path}
-                  to={item.path}
+                  to={safeUrl(item.path)}
                   className={`
     relative text-lg font-medium transition-colors duration-300
     ${
@@ -123,7 +121,7 @@ const Navbar = () => {
 
             {/* КНОПКА — с эффектами */}
             <Link
-              to="/order"
+              to={safeUrl(site.cta.path)}
               className="
                 group
                 relative
@@ -172,7 +170,7 @@ const Navbar = () => {
               />
 
               <span className="relative flex items-center gap-2">
-                Подобрать группу
+                {site.cta.label}
                 <ChevronRight
                   size={18}
                   className="
@@ -188,7 +186,7 @@ const Navbar = () => {
           <button
             className="md:hidden relative w-10 h-10 flex items-center justify-center text-purple-500 hover:text-purple-600 transition-colors"
             onClick={() => setIsOpen(!isOpen)}
-            aria-label="Меню"
+            aria-label={site.menuLabel}
           >
             <div className="absolute inset-0 bg-purple-500/10 rounded-lg opacity-0 hover:opacity-100 transition-opacity" />
             {isOpen ? <X size={24} /> : <Menu size={24} />}
@@ -203,14 +201,10 @@ const Navbar = () => {
           `}
         >
           <div className="flex flex-col space-y-3 pt-4 border-t border-purple-200">
-            {[
-              { path: "/", label: "Главная" },
-              { path: "/tech-rider", label: "Команда и оборудование" },
-              { path: "/order", label: "Контакты" },
-            ].map((item) => (
+            {site.nav.map((item) => (
               <Link
                 key={item.path}
-                to={item.path}
+                to={safeUrl(item.path)}
                 className={`
                   py-2 px-3 rounded-lg transition-all duration-300
                   ${
@@ -225,11 +219,11 @@ const Navbar = () => {
               </Link>
             ))}
             <Link
-              to="/order"
+              to={safeUrl(site.cta.path)}
               className="bg-gradient-to-r from-purple-500 to-purple-600 text-center text-white px-4 py-3 rounded-lg hover:from-purple-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 font-medium mt-2"
               onClick={() => setIsOpen(false)}
             >
-              Заказать выступление
+              {site.cta.mobileLabel}
             </Link>
           </div>
         </div>

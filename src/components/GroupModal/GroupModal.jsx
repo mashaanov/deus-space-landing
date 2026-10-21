@@ -1,3 +1,4 @@
+import { useContent, safeUrl } from "../../content";
 import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import {
@@ -16,45 +17,30 @@ import {
   Clock,
   Star,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+
 import cn from "classnames";
 import { Link } from "react-router-dom";
 
 const GroupModal = ({ group, isOpen, onClose }) => {
-  const navigate = useNavigate();
+  const {groupLabels: labels} = useContent();
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
-  const [modalRoot, setModalRoot] = useState(null);
   const [shouldRender, setShouldRender] = useState(false);
   const [animationState, setAnimationState] = useState("closed");
 
   useEffect(() => {
-    let root = document.getElementById("modal-root");
-    if (!root) {
-      root = document.createElement("div");
-      root.id = "modal-root";
-      document.body.appendChild(root);
-    }
-    setModalRoot(root);
-    return () => {
-      if (root && root.children.length === 0) {
-        document.body.removeChild(root);
-      }
-    };
-  }, []);
-
-  useEffect(() => {
     if (isOpen) {
-      setShouldRender(true);
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          setAnimationState("open");
-        });
+      const frame = requestAnimationFrame(() => {
+        setShouldRender(true);
+        setCurrentPhotoIndex(0);
+        setIsVideoPlaying(false);
+        setAnimationState("open");
       });
+      return () => cancelAnimationFrame(frame);
     } else {
-      setAnimationState("closed");
+      const frame = requestAnimationFrame(() => setAnimationState("closed"));
       const timer = setTimeout(() => setShouldRender(false), 400);
-      return () => clearTimeout(timer);
+      return () => {cancelAnimationFrame(frame); clearTimeout(timer);};
     }
   }, [isOpen]);
 
@@ -74,9 +60,9 @@ const GroupModal = ({ group, isOpen, onClose }) => {
 
   if (!group || !shouldRender) return null;
 
-  const photos = group.photos || [group.image, group.image, group.image];
+  const photos = group.photos?.length ? group.photos : [group.image];
   const videoUrl =
-    group.videoUrl || "https://www.youtube.com/embed/dQw4w9WgXcQ";
+    safeUrl(group.videoUrl);
 
   const nextPhoto = () => {
     setCurrentPhotoIndex((prev) => (prev + 1) % photos.length);
@@ -86,14 +72,6 @@ const GroupModal = ({ group, isOpen, onClose }) => {
     setCurrentPhotoIndex((prev) => (prev - 1 + photos.length) % photos.length);
   };
 
-  const handleOrder = () => {
-    onClose();
-    navigate(`/order`, {
-      state: {
-        selectedGroup: group.slug || group.id,
-      },
-    });
-  };
 
   const handleWatchVideo = () => {
     setIsVideoPlaying(true);
@@ -137,7 +115,7 @@ const GroupModal = ({ group, isOpen, onClose }) => {
           {/* Галерея — компактная */}
           <div className="relative h-[320px] md:h-[380px] group/gallery overflow-hidden">
             <img
-              src={photos[currentPhotoIndex]}
+              src={safeUrl(photos[currentPhotoIndex % photos.length])}
               alt={group.name}
               className="w-full h-full object-cover"
             />
@@ -171,14 +149,14 @@ const GroupModal = ({ group, isOpen, onClose }) => {
                 </span>
                 <div className="flex items-center gap-0.5">
                   <Star size={10} fill="#fbbf24" className="text-amber-400" />
-                  <span className="text-xs text-white/80">5.0</span>
+                  <span className="text-xs text-white/80">{group.rating}</span>
                 </div>
               </div>
               <h2 className="text-3xl md:text-4xl font-bold text-white mb-1">
                 {group.name}
               </h2>
               <p className="text-white/60 text-sm max-w-md">
-                {group.tagline || "Живая музыка для вашего праздника"}
+                {group.tagline}
               </p>
             </div>
           </div>
@@ -190,23 +168,23 @@ const GroupModal = ({ group, isOpen, onClose }) => {
               {[
                 {
                   icon: Users,
-                  label: "Участников",
-                  value: group.members || "4-6",
+                  label: labels.members,
+                  value: group.members,
                 },
                 {
                   icon: Calendar,
-                  label: "Концертов",
-                  value: `${group.concerts || 500}+`,
+                  label: labels.concerts,
+                  value: `${group.concerts}+`,
                 },
                 {
                   icon: Clock,
-                  label: "Длительность",
-                  value: group.duration || "2-3 ч",
+                  label: labels.duration,
+                  value: group.duration,
                 },
                 {
                   icon: Music,
-                  label: "Опыт",
-                  value: group.experience || "5+ лет",
+                  label: labels.experience,
+                  value: group.experience,
                 },
               ].map((stat, idx) => (
                 <div
@@ -227,11 +205,7 @@ const GroupModal = ({ group, isOpen, onClose }) => {
             {/* Преимущества — компактные */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
               {(
-                group.benefits || [
-                  "Профессиональное оборудование",
-                  "Индивидуальный репертуар",
-                  "Договор и гарантии",
-                ]
+                group.benefits || []
               ).map((benefit, idx) => (
                 <div
                   key={idx}
@@ -247,22 +221,24 @@ const GroupModal = ({ group, isOpen, onClose }) => {
             </div>
 
             {/* Видео — компактное */}
-            <div>
+            {videoUrl && <div>
               <div className="flex items-center gap-2 mb-2">
                 <Play size={14} className="text-purple-400" />
                 <h3 className="text-sm font-semibold text-white">
-                  Видео выступления
+                  {labels.video}
                 </h3>
               </div>
 
               {isVideoPlaying ? (
                 <div className="relative aspect-video rounded-xl overflow-hidden">
-                  <iframe
-                    src={`${videoUrl}?autoplay=1`}
+                  {/\.(?:mp4|webm)(?:[?#]|$)/i.test(videoUrl) ? <video src={videoUrl} controls autoPlay className="w-full h-full" /> : <iframe
+                    src={`${videoUrl}${videoUrl.includes("?") ? "&" : "?"}autoplay=1`}
+                    sandbox="allow-scripts allow-same-origin allow-presentation"
+                    title={labels.video}
                     className="w-full h-full"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
-                  />
+                  />}
                 </div>
               ) : (
                 <div
@@ -270,8 +246,8 @@ const GroupModal = ({ group, isOpen, onClose }) => {
                   className="relative aspect-video rounded-xl overflow-hidden cursor-pointer group/video"
                 >
                   <img
-                    src={group.videoThumbnail || group.image}
-                    alt="Видео выступления"
+                    src={safeUrl(group.videoThumbnail || group.image)}
+                    alt={labels.video}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover/video:scale-105"
                   />
                   <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
@@ -281,26 +257,26 @@ const GroupModal = ({ group, isOpen, onClose }) => {
                   </div>
                 </div>
               )}
-            </div>
+            </div>}
 
             {/* Описание — компактное */}
             <div>
               <h3 className="text-sm font-semibold text-white mb-1">
-                О группе
+                {labels.about}
               </h3>
               <p className="text-white/50 text-xs leading-relaxed line-clamp-3">
                 {group.fullDescription || group.description}
               </p>
             </div>
 
-            {/* Репертуар — компактный */}
+            {/* {labels.repertoire} — компактный */}
             {group.repertoire && (
               <div>
                 <h3 className="text-sm font-semibold text-white mb-2">
-                  Репертуар
+                  {labels.repertoire}
                 </h3>
                 <div className="flex flex-wrap gap-1.5">
-                  {group.repertoire.slice(0, 6).map((song, idx) => (
+                  {group.repertoire.map((song, idx) => (
                     <span
                       key={idx}
                       className="px-2 py-1 text-[10px] bg-white/5 hover:bg-purple-500/20 rounded-full text-white/70 transition-all duration-300"
@@ -308,11 +284,6 @@ const GroupModal = ({ group, isOpen, onClose }) => {
                       {song}
                     </span>
                   ))}
-                  {group.repertoire.length > 6 && (
-                    <span className="px-2 py-1 text-[10px] text-white/40">
-                      +{group.repertoire.length - 6}
-                    </span>
-                  )}
                 </div>
               </div>
             )}
@@ -321,24 +292,24 @@ const GroupModal = ({ group, isOpen, onClose }) => {
             <div className="flex items-center gap-2 flex-wrap">
               {group.instagram && (
                 <a
-                  href={group.instagram}
+                  href={safeUrl(group.instagram)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 hover:bg-purple-600 rounded-full text-white/60 hover:text-white text-xs transition-all duration-300"
                 >
                   <Instagram size={12} />
-                  Instagram
+                  {labels.instagram}
                 </a>
               )}
               {group.youtube && (
                 <a
-                  href={group.youtube}
+                  href={safeUrl(group.youtube)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 hover:bg-purple-600 rounded-full text-white/60 hover:text-white text-xs transition-all duration-300"
                 >
                   <Youtube size={12} />
-                  YouTube
+                  {labels.youtube}
                 </a>
               )}
             </div>
@@ -346,7 +317,7 @@ const GroupModal = ({ group, isOpen, onClose }) => {
             {/* Кнопка заказа — компактная */}
 
             <Link
-              to="/order"
+              to={safeUrl(labels.orderPath)}
               state={{ selectedGroup: group.slug || group.id }}
               onClick={onClose}
               className={cn(
@@ -377,7 +348,7 @@ const GroupModal = ({ group, isOpen, onClose }) => {
               />
 
               <span className="relative z-10 flex items-center justify-center gap-2">
-                Забронировать выступление
+                {labels.order}
               </span>
             </Link>
           </div>
@@ -386,7 +357,7 @@ const GroupModal = ({ group, isOpen, onClose }) => {
     </>
   );
 
-  return modalRoot ? createPortal(modalContent, modalRoot) : null;
+  return createPortal(modalContent, document.body);
 };
 
 export default GroupModal;
