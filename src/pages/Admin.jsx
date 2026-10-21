@@ -76,18 +76,22 @@ function AddItemDialog({ models, example, onAdd, isBlocks }) {
   const headingId = useId();
   const [newType, setNewType] = useState(models[0]?.type || '');
   const openDialog = () => {
+    if (models.length <= 1) {
+      onAdd(newItem(models[0] || example));
+      return;
+    }
     setNewType(models[0]?.type || '');
     dialog.current.showModal();
   };
   return <>
     <button type="button" className={isBlocks ? 'admin-fab' : 'admin-add-item'} aria-label={isBlocks ? 'Добавить блок' : 'Добавить элемент'} title={isBlocks ? 'Добавить блок' : 'Добавить элемент'} onClick={openDialog}><Plus size={22} aria-hidden="true" />{!isBlocks && <span>Добавить элемент</span>}</button>
-    <dialog ref={dialog} className="admin-dialog" aria-labelledby={headingId} onClick={e => { if (e.target === dialog.current) dialog.current.close(); }}>
+    {models.length > 1 && <dialog ref={dialog} className="admin-dialog" aria-labelledby={headingId} onClick={e => { if (e.target === dialog.current) dialog.current.close(); }}>
       <form onSubmit={e => { e.preventDefault(); const model = models.find(item => item.type === newType) || example; onAdd(newItem(model)); dialog.current.close(); }}>
         <div className="admin-dialog-heading"><h2 id={headingId}>{isBlocks ? 'Новый блок' : 'Новый элемент'}</h2><button type="button" className="admin-icon-button" aria-label="Закрыть диалог" onClick={() => dialog.current.close()}><X size={20} /></button></div>
-        {models.length > 0 ? <label className="admin-dialog-field">Тип нового блока<select autoFocus value={newType} onChange={e => setNewType(e.target.value)}>{models.map(model => <option key={model.type} value={model.type}>{blockNames[model.type] || 'Блок'}</option>)}</select></label> : <p>Будет добавлен новый элемент. После добавления измените его поля.</p>}
+        <label className="admin-dialog-field">Тип нового блока<select autoFocus value={newType} onChange={e => setNewType(e.target.value)}>{models.map(model => <option key={model.type} value={model.type}>{blockNames[model.type] || 'Блок'}</option>)}</select></label>
         <div className="admin-dialog-actions"><button type="button" onClick={() => dialog.current.close()}>Отменить</button><button className="admin-primary" type="submit">Добавить</button></div>
       </form>
-    </dialog>
+    </dialog>}
   </>;
 }
 
@@ -100,7 +104,7 @@ function Field({ value, onChange, fieldKey, template, upload, depth = 0 }) {
       {value.map((item, index) => {
         const name = String(itemName(item, index));
         const action = callback => e => { e.preventDefault(); e.stopPropagation(); callback(); };
-        return <details key={item?.id ?? index} open={depth < 1} className="admin-item">
+        return <details key={item?.id ?? index} className="admin-item">
           <summary><ChevronDown size={17} className="admin-chevron" aria-hidden="true" /><span className="admin-item-title" title={name}>{name}</span><span className="admin-actions">
             <button type="button" className="admin-icon-button" title="Переместить выше" aria-label={`Переместить выше: ${name}`} disabled={index === 0} onClick={action(() => { const next = [...value]; [next[index - 1], next[index]] = [next[index], next[index - 1]]; onChange(next); })}><ArrowUp size={17} /></button>
             <button type="button" className="admin-icon-button" title="Переместить ниже" aria-label={`Переместить ниже: ${name}`} disabled={index === value.length - 1} onClick={action(() => { const next = [...value]; [next[index + 1], next[index]] = [next[index], next[index + 1]]; onChange(next); })}><ArrowDown size={17} /></button>
@@ -118,7 +122,7 @@ function Field({ value, onChange, fieldKey, template, upload, depth = 0 }) {
     const content = <Field value={child} fieldKey={key} template={template?.[key]} upload={upload} depth={depth + 1} onChange={next => onChange({ ...value, [key]: next })} />;
     if (key === 'blocks') return <React.Fragment key={key}>{content}</React.Fragment>;
     if (typeof child === 'boolean') return <div className="admin-field admin-boolean-field" key={key}>{content}</div>;
-    return structured ? <details key={key} open={depth === 0} className="admin-group"><summary>{title(key)}</summary>{content}</details> : <div className="admin-field" key={key}><label>{title(key)}</label>{content}</div>;
+    return structured ? <details key={key} className="admin-group"><summary>{title(key)}</summary>{content}</details> : <div className="admin-field" key={key}><label>{title(key)}</label>{content}</div>;
   })}</div>;
   if (typeof value === 'boolean') return <label className="admin-switch-label"><span>{title(fieldKey)}</span><input className="admin-switch" type="checkbox" role="switch" aria-label={title(fieldKey)} checked={value} onChange={e => onChange(e.target.checked)} /></label>;
   if (typeof value === 'number') return <input aria-label={title(fieldKey)} type="number" value={value} onChange={e => onChange(Number(e.target.value))} />;
@@ -184,8 +188,8 @@ export default function Admin() {
     </form> : content && <>
       <div className="admin-toolbar"><strong>{dirty ? 'Есть несохранённые изменения' : 'Контент сохранён'}</strong><button type="button" disabled={busy || !dirty} onClick={save}>Сохранить изменения</button><button type="button" disabled={busy} onClick={async () => { if (dirty && !window.confirm('Выйти без сохранения?')) return; try { await mutation('/api/admin/logout', { method: 'POST' }); setDirty(false); setContent(null); setAuth({ authenticated: false }); } catch (e) { setStatus(e.message); } }}>Выйти</button></div>
       <nav className="admin-tabs" aria-label="Разделы редактора">{Object.keys(content).filter(key => key !== 'version').map(key => <button type="button" disabled={busy} key={key} aria-pressed={active === key} onClick={() => setActive(key)}>{title(key)}</button>)}<button type="button" disabled={busy} aria-pressed={active === '_media'} onClick={() => setActive('_media')}>Файлы</button></nav>
-      {active === '_media' ? <section><h2>Загруженные файлы</h2><fieldset disabled={busy} className="admin-editor"><UploadControl upload={upload} /></fieldset><p>Скопируйте адрес файла в поле изображения, видео или ссылки. Удаление файла необратимо; сначала уберите его из контента.</p>{files.map(file => <div className="admin-media" key={file.url}><a href={file.url} target="_blank" rel="noreferrer">{file.name || file.url.split('/').pop()}</a><input readOnly aria-label="Адрес файла" value={file.url} /><button type="button" disabled={busy} onClick={async () => { if (!window.confirm('Удалить файл навсегда?')) return; try { await mutation(`/api/admin/uploads/${encodeURIComponent(file.url.split('/').pop())}`, { method: 'DELETE' }); setFiles((await api('/api/admin/uploads')).files || []); setStatus('Файл удалён.'); } catch (e) { setStatus(e.message); } }}>Удалить</button></div>)}</section>
-        : Object.hasOwn(content, active) && <section><h2>{title(active)}</h2><fieldset disabled={busy} className="admin-editor"><Field value={content[active]} fieldKey={active} template={defaults[active]} upload={upload} onChange={value => { setContent(previous => ({ ...previous, [active]: value })); setDirty(true); }} /></fieldset></section>}
+      {active === '_media' ? <section key={active} aria-label="Загруженные файлы"><fieldset disabled={busy} className="admin-editor"><UploadControl upload={upload} /></fieldset><p>Скопируйте адрес файла в поле изображения, видео или ссылки. Удаление файла необратимо; сначала уберите его из контента.</p>{files.map(file => <div className="admin-media" key={file.url}><a href={file.url} target="_blank" rel="noreferrer">{file.name || file.url.split('/').pop()}</a><input readOnly aria-label="Адрес файла" value={file.url} /><button type="button" disabled={busy} onClick={async () => { if (!window.confirm('Удалить файл навсегда?')) return; try { await mutation(`/api/admin/uploads/${encodeURIComponent(file.url.split('/').pop())}`, { method: 'DELETE' }); setFiles((await api('/api/admin/uploads')).files || []); setStatus('Файл удалён.'); } catch (e) { setStatus(e.message); } }}>Удалить</button></div>)}</section>
+        : Object.hasOwn(content, active) && <section key={active} aria-label={title(active)}><fieldset disabled={busy} className="admin-editor"><Field value={content[active]} fieldKey={active} template={defaults[active]} upload={upload} onChange={value => { setContent(previous => ({ ...previous, [active]: value })); setDirty(true); }} /></fieldset></section>}
     </>}
   </main>;
 }
