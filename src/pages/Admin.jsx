@@ -1,4 +1,4 @@
-import React, { useEffect, useId, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { ArrowUp, ArrowDown, Copy, Trash2, Plus, Upload, ChevronDown, X } from 'lucide-react';
 import defaults from '../../content/default-content.json';
 import './Admin.css';
@@ -139,7 +139,15 @@ export default function Admin() {
   const [auth, setAuth] = useState(null);
   const [content, setContent] = useState(null);
   const [dirty, setDirty] = useState(false);
-  const [status, setStatus] = useState('');
+  const [status, setStatus] = useState(null);
+  const notify = useCallback((message, severity = 'success') => {
+    setStatus({ message, severity });
+  }, []);
+  useEffect(() => {
+    if (!status) return;
+    const timer = window.setTimeout(() => setStatus(null), status.severity === 'error' ? 6000 : 4000);
+    return () => window.clearTimeout(timer);
+  }, [status]);
   const [busy, setBusy] = useState(false);
   const [active, setActive] = useState('home');
   const [files, setFiles] = useState([]);
@@ -154,41 +162,40 @@ export default function Admin() {
       setFiles(uploaded.files || []);
     }
   };
-  useEffect(() => { refresh().catch(e => { setAuth({ authenticated: false }); setStatus(e.message); }); }, []);
+  useEffect(() => { refresh().catch(e => { setAuth({ authenticated: false }); notify(e.message, 'error'); }); }, [notify]);
   useEffect(() => { const handler = e => { if (dirty) { e.preventDefault(); e.returnValue = ''; } }; window.addEventListener('beforeunload', handler); return () => window.removeEventListener('beforeunload', handler); }, [dirty]);
   const mutation = async (url, options) => api(url, { ...options, headers: { 'X-CSRF-Token': auth.csrfToken, ...options?.headers } });
   const upload = async file => {
-    if (file.size > 25 * 1024 * 1024) { setStatus('Размер файла не должен превышать 25 МБ.'); return null; }
+    if (file.size > 25 * 1024 * 1024) { notify('Размер файла не должен превышать 25 МБ.', 'error'); return null; }
     setBusy(true);
     try {
       const data = await mutation('/api/admin/uploads', { method: 'POST', headers: { 'Content-Type': file.type || 'application/octet-stream' }, body: file });
       setFiles((await api('/api/admin/uploads')).files || []);
-      setStatus('Файл загружен. Сохраните контент, чтобы применить изменения.');
+      notify('Файл загружен. Сохраните контент, чтобы применить изменения.');
       return data.url;
-    } catch (e) { setStatus(e.message); return null; } finally { setBusy(false); }
+    } catch (e) { notify(e.message, 'error'); return null; } finally { setBusy(false); }
   };
   const login = async e => {
-    e.preventDefault(); setBusy(true); setStatus('');
+    e.preventDefault(); setBusy(true); setStatus(null);
     try { await api('/api/admin/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(credentials) }); setCredentials({ username: '', password: '' }); await refresh(); }
-    catch (err) { setStatus(err.message); } finally { setBusy(false); }
+    catch (err) { notify(err.message, 'error'); } finally { setBusy(false); }
   };
   const save = async () => {
-    setBusy(true); setStatus('');
-    try { await mutation('/api/admin/content', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(content) }); setDirty(false); setStatus('Изменения сохранены и доступны на сайте.'); }
-    catch (e) { setStatus(e.message); } finally { setBusy(false); }
+    setBusy(true); setStatus(null);
+    try { await mutation('/api/admin/content', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(content) }); setDirty(false); notify('Изменения сохранены и доступны на сайте.'); }
+    catch (e) { notify(e.message, 'error'); } finally { setBusy(false); }
   };
   return <main className="admin-shell">
-    <header className="admin-header"><h1>Управление сайтом</h1><a href="/" target="_blank" rel="noreferrer">Открыть сайт ↗</a></header>
-    {status && <p role="status" className="admin-status">{status}</p>}
+    {status && <div className="admin-toast" role={status.severity === 'error' ? 'alert' : 'status'} aria-live={status.severity === 'error' ? 'assertive' : 'polite'} aria-atomic="true">{status.message}</div>}
     {auth === null ? <p>Загрузка…</p> : !auth.authenticated ? <form className="admin-login" onSubmit={login}>
       <h2>Вход администратора</h2>
       <label>Логин<input required autoComplete="username" value={credentials.username} onChange={e => setCredentials({ ...credentials, username: e.target.value })} /></label>
       <label>Пароль<input required type="password" autoComplete="current-password" value={credentials.password} onChange={e => setCredentials({ ...credentials, password: e.target.value })} /></label>
       <button disabled={busy}>{busy ? 'Вход…' : 'Войти'}</button>
     </form> : content && <>
-      <div className="admin-toolbar"><strong>{dirty ? 'Есть несохранённые изменения' : 'Контент сохранён'}</strong><button type="button" disabled={busy || !dirty} onClick={save}>Сохранить изменения</button><button type="button" disabled={busy} onClick={async () => { if (dirty && !window.confirm('Выйти без сохранения?')) return; try { await mutation('/api/admin/logout', { method: 'POST' }); setDirty(false); setContent(null); setAuth({ authenticated: false }); } catch (e) { setStatus(e.message); } }}>Выйти</button></div>
+      <div className="admin-toolbar"><a className="admin-open-site" href="/" target="_blank" rel="noreferrer">Открыть сайт ↗</a><button className="admin-save" type="button" disabled={busy || !dirty} onClick={save}>Сохранить изменения</button><button type="button" disabled={busy} onClick={async () => { if (dirty && !window.confirm('Выйти без сохранения?')) return; try { await mutation('/api/admin/logout', { method: 'POST' }); setDirty(false); setContent(null); setAuth({ authenticated: false }); } catch (e) { notify(e.message, 'error'); } }}>Выйти</button></div>
       <nav className="admin-tabs" aria-label="Разделы редактора">{Object.keys(content).filter(key => key !== 'version').map(key => <button type="button" disabled={busy} key={key} aria-pressed={active === key} onClick={() => setActive(key)}>{title(key)}</button>)}<button type="button" disabled={busy} aria-pressed={active === '_media'} onClick={() => setActive('_media')}>Файлы</button></nav>
-      {active === '_media' ? <section key={active} aria-label="Загруженные файлы"><fieldset disabled={busy} className="admin-editor"><UploadControl upload={upload} /></fieldset>{files.map(file => <div className="admin-media" key={file.url}><a href={file.url} target="_blank" rel="noreferrer">{file.name || file.url.split('/').pop()}</a><input readOnly aria-label="Адрес файла" value={file.url} /><button type="button" disabled={busy} onClick={async () => { if (!window.confirm('Удалить файл навсегда?')) return; try { await mutation(`/api/admin/uploads/${encodeURIComponent(file.url.split('/').pop())}`, { method: 'DELETE' }); setFiles((await api('/api/admin/uploads')).files || []); setStatus('Файл удалён.'); } catch (e) { setStatus(e.message); } }}>Удалить</button></div>)}</section>
+      {active === '_media' ? <section key={active} aria-label="Загруженные файлы"><fieldset disabled={busy} className="admin-editor"><UploadControl upload={upload} /></fieldset>{files.map(file => <div className="admin-media" key={file.url}><a href={file.url} target="_blank" rel="noreferrer">{file.name || file.url.split('/').pop()}</a><input readOnly aria-label="Адрес файла" value={file.url} /><button type="button" disabled={busy} onClick={async () => { if (!window.confirm('Удалить файл навсегда?')) return; try { await mutation(`/api/admin/uploads/${encodeURIComponent(file.url.split('/').pop())}`, { method: 'DELETE' }); setFiles((await api('/api/admin/uploads')).files || []); notify('Файл удалён.'); } catch (e) { notify(e.message, 'error'); } }}>Удалить</button></div>)}</section>
         : Object.hasOwn(content, active) && <section key={active} aria-label={title(active)}><fieldset disabled={busy} className="admin-editor"><Field value={content[active]} fieldKey={active} template={defaults[active]} upload={upload} onChange={value => { setContent(previous => ({ ...previous, [active]: value })); setDirty(true); }} /></fieldset></section>}
     </>}
   </main>;
