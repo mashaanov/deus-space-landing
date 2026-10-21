@@ -95,6 +95,28 @@ function uploadType(bytes) {
   return null;
 }
 const mimeByExtension = { png:'image/png', jpg:'image/jpeg', gif:'image/gif', webp:'image/webp', mp4:'video/mp4', webm:'video/webm', mp3:'audio/mpeg', pdf:'application/pdf' };
+function byteRange(header, size) {
+  // Ignore malformed, multiple, or excessively large ranges and send the full file.
+  if (typeof header !== 'string' || header.length > 1024 || size === 0) return null;
+  const match = /^bytes=(\d*)-(\d*)$/i.exec(header.trim());
+  if (!match || (!match[1] && !match[2])) return null;
+  const total = BigInt(size);
+  let start, end;
+  if (!match[1]) {
+    const suffix = BigInt(match[2]);
+    if (suffix === 0n) return {unsatisfiable:true};
+    start = suffix >= total ? 0n : total - suffix;
+    end = total - 1n;
+  } else {
+    start = BigInt(match[1]);
+    end = match[2] ? BigInt(match[2]) : total - 1n;
+    if (match[2] && end < start) return null;
+    if (start >= total) return {unsatisfiable:true};
+    if (end >= total) end = total - 1n;
+  }
+  // Conversion is safe only after bounding both offsets to the actual file size.
+  return {start:Number(start), end:Number(end)};
+}
 export async function createCms({ dataDir, defaultContentPath, now = Date.now }) {
   await mkdir(dataDir, { recursive: true, mode: 0o700 });
   await chmod(dataDir, 0o700);
@@ -138,8 +160,19 @@ export async function createCms({ dataDir, defaultContentPath, now = Date.now })
         if (!/^[a-f0-9]{48}\.(png|jpg|gif|webp|mp4|webm|mp3|pdf)$/.test(filename)) { reply(res,404,{error:'Not found'}); return true; }
         const file = path.join(uploads, filename);
         const info = await stat(file);
-        res.writeHead(200, { 'Content-Type':mimeByExtension[path.extname(file).slice(1)], 'Content-Length':info.size, 'Cache-Control':'public, max-age=86400', 'Content-Security-Policy':"sandbox; default-src 'none'", ...(filename.endsWith('.pdf') ? {'Content-Disposition':'attachment'} : {}) });
-        if (req.method === 'HEAD') res.end(); else { const stream = createReadStream(file); stream.on('error', () => res.destroy()); res.on('close', () => stream.destroy()); stream.pipe(res); }
+        const headers = { 'Content-Type':mimeByExtension[path.extname(file).slice(1)], 'Content-Length':info.size, 'Accept-Ranges':'bytes', 'Cache-Control':'public, max-age=86400', 'Content-Security-Policy':"sandbox; default-src 'none'", ...(filename.endsWith('.pdf') ? {'Content-Disposition':'attachment'} : {}) };
+        // RFC 9110 defines Range for GET only. Without validators, If-Range falls back to 200.
+        const range = req.method === 'GET' && !req.headers['if-range'] ? byteRange(req.headers.range, info.size) : null;
+        if (range?.unsatisfiable) {
+          res.writeHead(416, {...headers, 'Content-Range':`bytes */${info.size}`, 'Content-Length':0});
+          res.end(); return true;
+        }
+        if (range) {
+          headers['Content-Range'] = `bytes ${range.start}-${range.end}/${info.size}`;
+          headers['Content-Length'] = range.end - range.start + 1;
+        }
+        res.writeHead(range ? 206 : 200, headers);
+        if (req.method === 'HEAD') res.end(); else { const stream = createReadStream(file, range || undefined); stream.on('error', () => res.destroy()); res.on('close', () => stream.destroy()); stream.pipe(res); }
         return true;
       }
       if (req.method === 'GET' && pathname === '/api/content') {
