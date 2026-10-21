@@ -78,6 +78,65 @@ test('uploads require valid media magic and cannot traverse storage',async t=>{
   assert.equal((await f.request('/api/admin/uploads/%2e%2e%2fadmin.json',{method:'DELETE',headers})).status,400);
   assert.equal((await f.request('/api/admin/uploads/'+files.body.files[0].name,{method:'DELETE',headers})).status,200);
 });
+
+test('uploaded videos support bounded, open-ended and suffix byte ranges for seeking', async t => {
+  const f = await fixture(t), login = await f.login();
+  const headers = {cookie:login.headers.get('set-cookie').split(';')[0], 'X-CSRF-Token':login.body.csrfToken, 'Content-Type':'video/mp4'};
+  const bytes = Buffer.concat([Buffer.from([0,0,0,24]), Buffer.from('ftypisom'), Buffer.from(Array.from({length:64}, (_, i) => i))]);
+  const upload = await f.request('/api/admin/uploads', {method:'POST', headers, body:bytes});
+  assert.equal(upload.status, 201);
+  const url = f.origin + upload.body.url;
+  const full = await fetch(url);
+  assert.equal(full.status, 200);
+  assert.equal(full.headers.get('accept-ranges'), 'bytes');
+  assert.equal(full.headers.get('content-range'), null);
+  assert.equal(full.headers.get('content-type'), 'video/mp4');
+  assert.equal(full.headers.get('content-security-policy'), "sandbox; default-src 'none'");
+  assert.equal(full.headers.get('content-length'), String(bytes.length));
+  assert.deepEqual(Buffer.from(await full.arrayBuffer()), bytes);
+
+  for (const [range, start, end] of [
+    ['bytes=0-0', 0, 0], ['bytes=4-11', 4, 11],
+    ['bytes=12-', 12, bytes.length - 1], ['bytes=-10', bytes.length - 10, bytes.length - 1],
+    ['bytes=60-999', 60, bytes.length - 1], ['bytes=-999', 0, bytes.length - 1],
+    ['bytes=1-99999999999999999999999999999999999999', 1, bytes.length - 1],
+    ['bytes=-99999999999999999999999999999999999999', 0, bytes.length - 1],
+  ]) {
+    const response = await fetch(url, {headers:{Range:range}});
+    assert.equal(response.status, 206, range);
+    assert.equal(response.headers.get('accept-ranges'), 'bytes');
+    assert.equal(response.headers.get('content-range'), `bytes ${start}-${end}/${bytes.length}`);
+    assert.equal(response.headers.get('content-length'), String(end - start + 1));
+    assert.deepEqual(Buffer.from(await response.arrayBuffer()), bytes.subarray(start, end + 1));
+  }
+
+  for (const range of [`bytes=${bytes.length}-`, 'bytes=99999999999999999999999999999999999999-', 'bytes=-0']) {
+    const response = await fetch(url, {headers:{Range:range}});
+    assert.equal(response.status, 416, range);
+    assert.equal(response.headers.get('content-range'), `bytes */${bytes.length}`);
+    assert.equal(response.headers.get('content-length'), '0');
+    assert.equal((await response.arrayBuffer()).byteLength, 0);
+  }
+
+  // Unsupported/malformed ranges are ignored; HEAD always describes the full representation.
+  for (const range of ['bytes=0-1,4-5', 'bytes=10-1', 'bytes=-', 'bytes=Infinity-', 'items=0-2', 'bytes=1.5-2', `bytes=${'9'.repeat(1100)}-`]) {
+    const response = await fetch(url, {headers:{Range:range}});
+    assert.equal(response.status, 200, range);
+    assert.equal(response.headers.get('content-range'), null);
+    assert.deepEqual(Buffer.from(await response.arrayBuffer()), bytes);
+  }
+  for (const range of [undefined, 'bytes=0-1', `bytes=${bytes.length}-`]) {
+    const response = await fetch(url, {method:'HEAD', headers:range ? {Range:range} : {}});
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get('accept-ranges'), 'bytes');
+    assert.equal(response.headers.get('content-length'), String(bytes.length));
+    assert.equal(response.headers.get('content-range'), null);
+    assert.equal((await response.arrayBuffer()).byteLength, 0);
+  }
+  const conditional = await fetch(url, {headers:{Range:'bytes=0-1', 'If-Range':'"unknown-validator"'}});
+  assert.equal(conditional.status, 200);
+  assert.deepEqual(Buffer.from(await conditional.arrayBuffer()), bytes);
+});
 test('content rejects dangerous URLs, prototype keys and excessive nesting',()=>{
   for (const url of ['javascript:alert(1)','data:text/html,test','//evil.test','java\nscript:test','vbscript:alert(1)']) assert.throws(()=>validateContent({link:url}));
   assert.throws(()=>validateContent(JSON.parse('{"__proto__":{}}')));

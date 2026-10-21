@@ -1,6 +1,8 @@
 import React, { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { ArrowUp, ArrowDown, Copy, Trash2, Plus, Upload, ChevronDown, X } from 'lucide-react';
 import defaults from '../../content/default-content.json';
+import { AdminImage, AdminPhotoGallery, AdminVideo } from './AdminMedia';
+import AdminIconPicker from '../components/AdminIconPicker';
 import './Admin.css';
 
 const labels = {
@@ -96,6 +98,7 @@ function AddItemDialog({ models, example, onAdd, isBlocks }) {
 }
 
 function Field({ value, onChange, fieldKey, template, upload, depth = 0 }) {
+  if (Array.isArray(value) && ['photos', 'images'].includes(fieldKey) && value.every(item => typeof item === 'string')) return <AdminPhotoGallery value={value} onChange={onChange} upload={upload} />;
   if (Array.isArray(value)) {
     const example = template?.[0] ?? value[0] ?? '';
     const models = Array.isArray(template) ? template.filter((item, i, list) => item && typeof item === 'object' && item.type && list.findIndex(other => other.type === item.type) === i) : [];
@@ -127,6 +130,9 @@ function Field({ value, onChange, fieldKey, template, upload, depth = 0 }) {
   if (typeof value === 'boolean') return <label className="admin-switch-label"><span>{title(fieldKey)}</span><input className="admin-switch" type="checkbox" role="switch" aria-label={title(fieldKey)} checked={value} onChange={e => onChange(e.target.checked)} /></label>;
   if (typeof value === 'number') return <input aria-label={title(fieldKey)} type="number" value={value} onChange={e => onChange(Number(e.target.value))} />;
   if (value === null) return <span>Не задано</span>;
+  if (fieldKey === 'icon') return <AdminIconPicker value={value} onChange={onChange} upload={upload} />;
+  if (fieldKey === 'videoUrl') return <AdminVideo value={value} onChange={onChange} upload={upload} />;
+  if (['image', 'avatar', 'videoThumbnail'].includes(fieldKey)) return <AdminImage value={value} onChange={onChange} upload={upload} />;
   return <div>
     {value.length > 100 || /description|text|about|message/i.test(fieldKey)
       ? <textarea aria-label={title(fieldKey)} rows={4} value={value} onChange={e => onChange(e.target.value)} />

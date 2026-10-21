@@ -1,4 +1,5 @@
 import { useContent, safeUrl } from "../../content";
+import { videoSource } from "../../media-utils";
 import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import {
@@ -61,8 +62,8 @@ const GroupModal = ({ group, isOpen, onClose }) => {
   if (!group || !shouldRender) return null;
 
   const photos = group.photos?.length ? group.photos : [group.image];
-  const videoUrl =
-    safeUrl(group.videoUrl);
+  const video = videoSource(group.videoUrl);
+  const videoUrl = video?.url;
 
   const nextPhoto = () => {
     setCurrentPhotoIndex((prev) => (prev + 1) % photos.length);
@@ -229,9 +230,9 @@ const GroupModal = ({ group, isOpen, onClose }) => {
                 </h3>
               </div>
 
-              {isVideoPlaying ? (
+              {video.type === 'file' || isVideoPlaying ? (
                 <div className="relative aspect-video rounded-xl overflow-hidden">
-                  {/\.(?:mp4|webm)(?:[?#]|$)/i.test(videoUrl) ? <video src={videoUrl} controls autoPlay className="w-full h-full" /> : <iframe
+                  {video.type === 'file' ? <video src={videoUrl} controls preload="metadata" playsInline className="w-full h-full" /> : <iframe
                     src={`${videoUrl}${videoUrl.includes("?") ? "&" : "?"}autoplay=1`}
                     sandbox="allow-scripts allow-same-origin allow-presentation"
                     title={labels.video}
