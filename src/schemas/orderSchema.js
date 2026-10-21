@@ -1,37 +1,14 @@
 import { z } from 'zod';
 
-export const orderSchema = z.object({
-  group: z.string({
-    required_error: "Выберите группу",
-  }).min(1, "Выберите группу"),
-  
-  equipment: z.enum(["до 30 человек", "30-250 человек"], {
-    required_error: "Выберите формат аппаратуры",
-  }),
-  
-  eventDate: z.date({
-    required_error: "Укажите дату мероприятия",
-    invalid_type_error: "Некорректная дата",
-  }).min(new Date(), "Дата не может быть в прошлом"),
-  
-  location: z.string({
-    required_error: "Укажите место проведения",
-  }).min(5, "Минимум 5 символов"),
-  
-  phone: z.string({
-    required_error: "Укажите телефон",
-  }).regex(/^\+?[0-9]{10,15}$/, "Неверный формат телефона"),
-  
-  name: z.string({
-    required_error: "Укажите имя",
-  }).min(2, "Минимум 2 символа"),
-});
-
-export const defaultValues = {
-  group: "",
-  equipment: "до 30 человек",
-  eventDate: new Date(),
-  location: "",
-  phone: "",
-  name: "",
+export const orderSchema = (labels) => {
+  const e = labels.errors;
+  return z.object({
+    group: z.string().min(1, e.group),
+    equipment: z.string().refine(value => labels.equipmentOptions.some(option => option.value === value), e.equipment),
+    eventDate: z.date({error: e.date}).refine(date => {const today = new Date();today.setHours(0,0,0,0);return date >= today;}, e.pastDate),
+    location: z.string().min(5, e.location),
+    phone: z.string().regex(/^\+?[0-9 ()-]{10,25}$/, e.phone).refine(value => /^\d{10,15}$/.test(value.replace(/\D/g,'')), e.phone),
+    name: z.string().min(2, e.name),
+  });
 };
+export const defaultValues = { group: '', equipment: '', eventDate: new Date(), location: '', phone: '', name: '' };

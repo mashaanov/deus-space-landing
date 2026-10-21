@@ -1,11 +1,12 @@
-import { groupsData } from "../data/groups";
+import { useContent, safeUrl } from "../content";
 import React, { useCallback, useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import useEmblaCarousel from "embla-carousel-react";
 import AutoScroll from "embla-carousel-auto-scroll";
 import GroupModal from "./GroupModal/GroupModal";
 
-const Carousel = ({ groups = groupsData }) => {
+const Carousel = () => {
+  const {groups, groupLabels: labels} = useContent();
   const autoplayRef = useRef(null);
   const timerRef = useRef(null);
 
@@ -126,7 +127,7 @@ const Carousel = ({ groups = groupsData }) => {
           <button
             className=" cursor-pointer absolute left-0 top-1/2 -translate-y-1/2 z-20 bg-[var(--color-purple-600)]/80 hover:bg-[var(--color-purple-500)] text-white w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-sm transition-all duration-300 hover:scale-110"
             onClick={scrollPrev}
-            aria-label="Предыдущий слайд"
+            aria-label={labels.previous}
           >
             <svg
               className="w-6 h-6"
@@ -146,7 +147,7 @@ const Carousel = ({ groups = groupsData }) => {
           <button
             className="cursor-pointer absolute right-0 top-1/2 -translate-y-1/2 z-20 bg-[var(--color-purple-600)]/80 hover:bg-[var(--color-purple-500)] text-white w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-sm transition-all duration-300 hover:scale-110"
             onClick={scrollNext}
-            aria-label="Следующий слайд"
+            aria-label={labels.next}
           >
             <svg
               className="w-6 h-6"
@@ -174,7 +175,7 @@ const Carousel = ({ groups = groupsData }) => {
               {groups.map((group, index) => (
                 <div
                   onClick={() => openModal(index)}
-                  key={group.id}
+                  key={`${group.id}-${index}`}
                   className="flex-[0_0_100%] min-w-0 pl-2 pr-2 sm:flex-[0_0_50%] lg:flex-[0_0_33.333%] cursor-pointer"
                 >
                   <div className="block group/card relative overflow-hidden rounded-xl bg-[#1a1a2e] border border-[var(--color-purple-500)]/20 hover:border-[var(--color-purple-400)]/50 transition-all duration-300 hover:shadow-[0_20px_40px_-15px_rgba(139,92,246,0.5)] h-full">
@@ -182,14 +183,13 @@ const Carousel = ({ groups = groupsData }) => {
                     <div className="relative h-64 overflow-hidden">
                       <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-deus-black)] via-transparent to-transparent z-10" />
                       <img
-                        src={group.image}
+                        src={safeUrl(group.image)}
                         alt={group.name}
                         className="w-full h-full object-cover transition-transform duration-700 group-hover/card:scale-110"
                         onError={(e) => {
                           e.target.onerror = null;
                           e.target.src =
-                            "https://via.placeholder.com/400x300/1a1a1a/8b5cf6?text=" +
-                            encodeURIComponent(group.name);
+                            "/media/teeest.jpg";
                         }}
                       />
 
@@ -210,7 +210,7 @@ const Carousel = ({ groups = groupsData }) => {
 
                       {/* Индикатор кликабельности */}
                       <span className="inline-flex items-center text-[var(--color-purple-400)] font-medium">
-                        Подробнее
+                        {labels.more}
                         <svg
                           className="w-4 h-4 ml-1 group-hover/card:translate-x-1 transition-transform"
                           fill="none"
@@ -252,7 +252,7 @@ const Carousel = ({ groups = groupsData }) => {
                     resumeAutoplay();
                   }
                 }}
-                aria-label={`Перейти к слайду ${index + 1}`}
+                aria-label={`${labels.goTo} ${index + 1}`}
               />
             ))}
           </div>

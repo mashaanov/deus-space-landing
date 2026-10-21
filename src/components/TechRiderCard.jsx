@@ -1,5 +1,6 @@
+import { useContent, safeUrl } from "../content";
 import React from "react";
-import { motion } from "framer-motion";
+import { motion as Motion } from "framer-motion";
 
 // Анимации
 const fadeInUp = {
@@ -17,10 +18,11 @@ const staggerContainer = {
 };
 
 const TechRiderCard = ({ item, index }) => {
+  const {techRider} = useContent();
   const isEven = index % 2 === 0;
 
   return (
-    <motion.section
+    <Motion.section
       id={item.id}
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
@@ -43,8 +45,8 @@ const TechRiderCard = ({ item, index }) => {
               ${isEven ? "" : "md:col-start-2"}
             `}
           >
-            <motion.img
-              src={item.image}
+            <Motion.img
+              src={safeUrl(item.image)}
               alt={item.title}
               initial={{ scale: 1 }}
               whileHover={{ scale: 1.08 }}
@@ -56,7 +58,7 @@ const TechRiderCard = ({ item, index }) => {
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
             
             {/* Обводка при ховере */}
-            <motion.div
+            <Motion.div
               initial={{ opacity: 0 }}
               whileHover={{ opacity: 1 }}
               transition={{ duration: 0.2 }}
@@ -65,7 +67,7 @@ const TechRiderCard = ({ item, index }) => {
           </div>
 
           {/* Контент */}
-          <motion.div
+          <Motion.div
             initial={{ opacity: 0, x: isEven ? 30 : -30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, amount: 0.3 }}
@@ -73,16 +75,16 @@ const TechRiderCard = ({ item, index }) => {
             className="flex flex-col justify-center h-full"
           >
             {/* Карточка с контентом */}
-            <motion.div
+            <Motion.div
               whileHover={{ y: -3 }}
               transition={{
                 type: "spring",
                 stiffness: 400,
                 damping: 20,
               }}
-              class="bg-[var(--color-purple-500)] backdrop-blur-sm rounded-xl p-5 lg:p-7 border border-[var(--color-purple-500)]/30 hover:border-[var(--color-purple-400)]/60 transition-all duration-300 shadow-lg shadow-purple-500/5">
+              className="bg-[var(--color-purple-500)] backdrop-blur-sm rounded-xl p-5 lg:p-7 border border-[var(--color-purple-500)]/30 hover:border-[var(--color-purple-400)]/60 transition-all duration-300 shadow-lg shadow-purple-500/5">
               <div className="space-y-3 lg:space-y-4">
-                <motion.h2
+                <Motion.h2
                   initial={{ opacity: 0, y: 15 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
@@ -90,9 +92,9 @@ const TechRiderCard = ({ item, index }) => {
                   className="text-xl lg:text-2xl font-bold text-white"
                 >
                   {item.title}
-                </motion.h2>
+                </Motion.h2>
 
-                <motion.p
+                <Motion.p
                   initial={{ opacity: 0, y: 15 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
@@ -100,26 +102,26 @@ const TechRiderCard = ({ item, index }) => {
                   className="text-sm text-[var(--color-deus-white)]/70 leading-relaxed"
                 >
                   {item.description}
-                </motion.p>
+                </Motion.p>
 
-                <motion.div
+                <Motion.div
                   variants={staggerContainer}
                   initial="initial"
                   whileInView="animate"
                   viewport={{ once: true }}
                   className="pt-1"
                 >
-                  <motion.h3
+                  <Motion.h3
                     variants={fadeInUp}
                     className="text-sm font-semibold text-[var(--color-purple-300)] flex items-center gap-2 mb-2"
                   >
                     <span className="w-1 h-4 bg-[var(--color-purple-400)] rounded-full" />
-                    В комплекте:
-                  </motion.h3>
+                    {item.content.title || techRider.included}
+                  </Motion.h3>
                   
-                  <motion.ul className="grid grid-cols-1 gap-1.5">
-                    {item.content.list.slice(0, 4).map((listItem, i) => (
-                      <motion.li
+                  <Motion.ul className="grid grid-cols-1 gap-1.5">
+                    {item.content.list.map((listItem, i) => (
+                      <Motion.li
                         key={i}
                         variants={fadeInUp}
                         whileHover={{ x: 4 }}
@@ -133,19 +135,19 @@ const TechRiderCard = ({ item, index }) => {
                         <span className="text-sm text-[var(--color-deus-white)]/80 group-hover:text-white transition-colors duration-200">
                           {listItem}
                         </span>
-                      </motion.li>
+                      </Motion.li>
                     ))}
-                  </motion.ul>
-                </motion.div>
+                  </Motion.ul>
+                </Motion.div>
               </div>
-            </motion.div>
-          </motion.div>
+            </Motion.div>
+          </Motion.div>
         </div>
       </div>
 
       {/* Декоративный разделитель */}
       {index < item.length - 1 && (
-        <motion.div
+        <Motion.div
           initial={{ scaleX: 0 }}
           whileInView={{ scaleX: 1 }}
           viewport={{ once: true }}
@@ -153,9 +155,9 @@ const TechRiderCard = ({ item, index }) => {
           className="mt-8 flex justify-center"
         >
           <div className="w-24 h-px bg-gradient-to-r from-transparent via-[var(--color-purple-500)]/40 to-transparent" />
-        </motion.div>
+        </Motion.div>
       )}
-    </motion.section>
+    </Motion.section>
   );
 };
 

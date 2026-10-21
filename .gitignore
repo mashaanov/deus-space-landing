@@ -7,3 +7,6 @@
 secrets/
 *.log
 logs/
+
+# Persistent CMS data, uploads, sessions, credential hashes
+/var/

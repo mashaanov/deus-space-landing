@@ -6,11 +6,15 @@ build:
   image: node:22-bookworm
   script:
     - npm ci --no-audit --no-fund
+    - npm test
     - npm run build
   artifacts:
     name: "novicovs-$CI_COMMIT_SHORT_SHA"
     paths:
       - dist/
       - server.mjs
+      - server/
+      - scripts/
+      - content/
       - ecosystem.config.cjs
     expire_in: 30 days
