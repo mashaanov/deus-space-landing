@@ -14,14 +14,18 @@ The production server serves `dist/` on `0.0.0.0:1488`. Set `PORT` to choose ano
 
 ## Server
 
-The deployment directory is `/mnt/server/storage/novicovs`. After building there, start or reload the PM2 application:
+The deployment directory is `/mnt/server/storage/novicovs`. Build there, then recreate the existing `novicovs` entry once to switch it from cluster mode to fork mode. This briefly stops this application; its private `var/` data and other PM2 applications remain intact:
 
 ```sh
-pm2 startOrReload ecosystem.config.cjs --update-env
+pm2 delete novicovs
+pm2 start ecosystem.config.cjs --only novicovs
+readlink /proc/$(pm2 pid novicovs)/exe
 pm2 save
 ```
 
-The PM2 configuration uses the server's installed Node.js 22 runtime. On another host, adjust `cwd` and `interpreter` in `ecosystem.config.cjs`. The server needs no installed npm dependencies once `dist/` has been built. The router must forward the chosen port for access from the Internet.
+For subsequent deployments, use `pm2 startOrReload ecosystem.config.cjs --only novicovs --update-env`, verify the executable again, then `pm2 save`.
+
+The PM2 configuration explicitly uses fork mode and the server's installed Node.js 22 runtime. Cluster mode inherits the PM2 daemon's Node executable and can ignore the configured interpreter. Verify that the `readlink` command reports the Node.js 22 path before saving the process list. The server refuses to start on Node.js below 22. On another host, adjust `cwd`, `interpreter` and the commands above. The server needs no installed npm dependencies once `dist/` has been built. The router must forward the chosen port for access from the Internet.
 
 ## GitLab CI
 
