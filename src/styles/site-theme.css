@@ -1,0 +1,162 @@
+/* Public surfaces are scoped separately from the administration panel. */
+[data-theme="dark"] .public-site,
+[data-theme="dark"] .site-footer,
+[data-theme="dark"] .site-navbar {
+  color: #eeeaf7;
+  --site-muted: #b6adc9;
+  --site-border: #413451;
+}
+
+[data-theme="dark"] .public-site,
+[data-theme="dark"] .site-page {
+  background: #15111e;
+}
+
+[data-theme="dark"] .site-page {
+  background-image: linear-gradient(135deg, #15111e, #21172e);
+}
+
+[data-theme="dark"] .site-navbar {
+  background: rgb(25 19 35 / 92%);
+  border-color: #413451;
+  box-shadow: 0 4px 24px rgb(0 0 0 / 18%);
+}
+
+[data-theme="dark"] .site-footer {
+  background: linear-gradient(180deg, #21172e, #17111f);
+  border-color: #413451;
+}
+
+[data-theme="dark"] :is(.public-site, .site-navbar, .site-footer) :is(.text-gray-400, .text-slate-400, .text-gray-500) {
+  color: #b6adc9;
+}
+
+[data-theme="dark"] :is(.public-site, .site-navbar, .site-footer) :is(.text-gray-600, .text-gray-700) {
+  color: #d5cee3;
+}
+
+[data-theme="dark"] :is(.public-site, .site-navbar, .site-footer) :is(.text-purple-600, .text-purple-700, .text-purple-900) {
+  color: #c4adfa;
+}
+
+[data-theme="dark"] :is(.public-site, .site-navbar, .site-footer) :is(.border-purple-100, .border-purple-200) {
+  border-color: #413451;
+}
+
+[data-theme="dark"] :is(.site-navbar, .site-footer) a:hover,
+[data-theme="dark"] .site-section-nav button:hover {
+  color: #decfff;
+}
+
+[data-theme="dark"] .site-navbar :is(.bg-purple-100, .hover\:bg-purple-50:hover),
+[data-theme="dark"] .site-section-nav button:hover {
+  background: #3a2951;
+}
+
+[data-theme="dark"] .site-stats {
+  background: linear-gradient(90deg, rgb(97 65 148 / 22%), transparent);
+}
+
+[data-theme="dark"] .site-price-card.bg-white,
+[data-theme="dark"] .site-review-card,
+[data-theme="dark"] .site-contact-card,
+[data-theme="dark"] .site-social-link,
+[data-theme="dark"] .site-section-nav {
+  background: #271e34;
+  border-color: #49385e;
+  box-shadow: 0 8px 28px rgb(0 0 0 / 13%);
+}
+
+[data-theme="dark"] .site-price-card.bg-white {
+  color: #eeeaf7;
+}
+
+[data-theme="dark"] .site-price-card .bg-purple-100,
+[data-theme="dark"] .site-contact-card .bg-purple-100 {
+  background: #3b2b51;
+}
+
+[data-theme="dark"] .site-contact-value,
+[data-theme="dark"] .site-social-title {
+  color: #eeeaf7;
+}
+
+[data-theme="dark"] :is(.site-contact-description, .site-contact-note) {
+  color: #b6adc9;
+}
+
+[data-theme="dark"] .site-contact-label,
+[data-theme="dark"] :is(.site-contact-card, .site-social-link) svg {
+  color: #c4adfa;
+}
+
+[data-theme="dark"] .site-contact-form {
+  background: linear-gradient(135deg, #3c2460, #2c1b46);
+  border-color: #624487;
+}
+
+[data-theme="dark"] .site-order-form :is(input, select) {
+  background: #21192d;
+  border-color: #70578e;
+  color: #f2edf9;
+  color-scheme: dark;
+}
+
+[data-theme="dark"] .site-order-form :is(input, select):focus {
+  border-color: #b798fa;
+  outline-color: #b798fa;
+}
+
+[data-theme="dark"] .site-order-form input::placeholder {
+  color: #b6adc9;
+}
+
+[data-theme="dark"] .site-order-form input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px #21192d inset;
+  -webkit-text-fill-color: #f2edf9;
+}
+
+[data-theme="dark"] .site-order-form .custom-calendar button {
+  background: #21192d;
+  color: #f2edf9;
+}
+
+[data-theme="dark"] .public-site .react-datepicker,
+[data-theme="dark"] .public-site .react-datepicker__header {
+  background: #21192d;
+  border-color: #70578e;
+}
+
+[data-theme="dark"] .public-site .react-datepicker__day {
+  color: #e6dff2;
+}
+
+[data-theme="dark"] .public-site .react-datepicker__day--outside-month {
+  color: #aa9dbd;
+}
+
+[data-theme="dark"] .public-site .react-datepicker__day--disabled {
+  color: #776c87;
+}
+
+[data-theme="dark"] .public-site .react-datepicker__day:not(.react-datepicker__day--disabled):hover {
+  background: #523773;
+  color: #fff;
+}
+
+[data-theme="dark"] .public-site :is(.react-datepicker__day--selected, .react-datepicker__day--keyboard-selected) {
+  background: #7c3aed;
+  color: #fff;
+}
+
+[data-theme="dark"] .site-equipment-card {
+  background: #352346;
+  border-color: #624487;
+}
+
+/* Brighter gradient stops retain the brand treatment against dark surfaces. */
+[data-theme="dark"] .public-site h1.bg-clip-text {
+  --tw-gradient-from: #b896fb;
+  --tw-gradient-via: #c7a7fa;
+  --tw-gradient-to: #ac89ed;
+}

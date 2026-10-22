@@ -30,29 +30,32 @@ function PhotoLink({ initial = '', onChange, disabled }) {
     </form></dialog>
   </>;
 }
-function PhotoUpload({ upload, onUploaded, card = false, disabled, onBusy, video = false }) {
+function PhotoUpload({ upload, onUploaded, card = false, disabled, onBusy, video = false, onMessage }) {
   const uploadLabel = video ? 'Загрузить видео' : 'Загрузить фото';
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState('');
+  const updateMessage = message => { setMessage(message); onMessage?.(message); };
   const callback = useRef(onUploaded);
   callback.current = onUploaded;
   return <div className={card ? 'admin-photo-add' : 'admin-photo-upload'}><label className={card ? 'admin-photo-add-button' : 'admin-upload'}>
     {card ? <Plus size={28} aria-hidden="true" /> : <Upload size={16} aria-hidden="true" />}<span>{uploading ? 'Загрузка…' : card ? 'Добавить фото' : uploadLabel}</span>
     <input className="admin-file-input" type="file" accept={video ? 'video/mp4,video/webm' : acceptImages} aria-label={card ? 'Добавить фото' : uploadLabel} disabled={disabled || uploading} onChange={async e => {
       const file = e.target.files?.[0]; e.target.value = ''; if (!file) return;
-      if (!(video ? /^video\/(mp4|webm)$/ : /^image\/(png|jpeg|webp|gif)$/).test(file.type)) { setMessage(video ? 'Выберите MP4 или WebM.' : 'Выберите PNG, JPG, WebP или GIF.'); return; }
-      setUploading(true); setMessage(''); onBusy?.(true);
-      try { const url = await upload(file); if (url) { callback.current(url); setMessage(`Загружен: ${file.name}`); } else setMessage(video ? 'Не удалось загрузить видео.' : 'Не удалось загрузить фото.'); }
+      if (!(video ? /^video\/(mp4|webm)$/ : /^image\/(png|jpeg|webp|gif)$/).test(file.type)) { updateMessage(video ? 'Выберите MP4 или WebM.' : 'Выберите PNG, JPG, WebP или GIF.'); return; }
+      setUploading(true); updateMessage(''); onBusy?.(true);
+      try { const url = await upload(file); if (url) { callback.current(url); updateMessage(`Загружен: ${file.name}`); } else updateMessage(video ? 'Не удалось загрузить видео.' : 'Не удалось загрузить фото.'); }
       finally { setUploading(false); onBusy?.(false); }
     }} />
-  </label>{message && <span className="admin-upload-message" role="status">{message}</span>}</div>;
+  </label>{message && !onMessage && <span className="admin-upload-message" role="status">{message}</span>}</div>;
 }
 export function AdminImage({ value, onChange, upload }) {
   const preview = useRef(null);
   const [uploading, setUploading] = useState(false);
+  const [message, setMessage] = useState('');
   return <div className="admin-image-field">
     <button type="button" className="admin-photo-thumbnail admin-single-photo" disabled={!value || uploading} aria-label="Открыть фотографию" onClick={e => { e.stopPropagation(); preview.current.showModal(); }}><Thumbnail key={value} value={value} /></button>
-    <div className="admin-image-controls"><PhotoUpload upload={upload} onUploaded={onChange} onBusy={setUploading} /><PhotoLink initial={value} onChange={onChange} disabled={uploading} />{value && <button type="button" className="admin-icon-button admin-danger" disabled={uploading} title="Убрать фотографию" aria-label="Убрать фотографию" onClick={() => onChange('')}><Trash2 size={17} /></button>}</div>
+    <div className="admin-image-controls"><PhotoUpload upload={upload} onUploaded={onChange} onBusy={setUploading} onMessage={setMessage} /><PhotoLink initial={value} onChange={onChange} disabled={uploading} /><button type="button" className="admin-image-delete admin-danger" disabled={!value || uploading} title="Удалить фотографию" aria-label="Удалить фотографию" onClick={() => { onChange(''); setMessage(''); }}><Trash2 size={16} /><span>Удалить</span></button></div>
+    {message && <span className="admin-upload-message admin-image-message" role="status">{message}</span>}
     <Preview dialog={preview} value={value} />
   </div>;
 }

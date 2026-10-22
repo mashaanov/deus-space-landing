@@ -222,7 +222,7 @@ const Form = ({ location, initialGroup = "" }) => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         onSubmit={handleSubmit(handleFormSubmit)}
-        className="max-w-2xl mx-auto"
+        className="site-order-form max-w-2xl mx-auto"
       >
         {/* Группа + Превью в одной строке */}
         <div className="grid md:grid-cols-2 gap-4 mb-4">

@@ -2,6 +2,8 @@ import { useContent, safeUrl } from "../content";
 import React, { useState, useEffect } from "react";
 import { Music, Menu, X, ChevronRight } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import ThemeToggle from "./ThemeToggle";
+import "../styles/site-theme.css";
 
 const Navbar = () => {
   const { site } = useContent();
@@ -23,7 +25,7 @@ const Navbar = () => {
   return (
     <nav
       className={`
-        fixed w-full z-50 top-0 transition-all duration-500 
+        site-navbar fixed w-full z-50 top-0 transition-all duration-500
         ${
           scrolled
             ? "bg-white/80 backdrop-blur-xl border-b border-purple-200 shadow-lg shadow-purple-200/30"
@@ -91,9 +93,10 @@ const Navbar = () => {
           </Link>
 
           {/* ДЕСКТОП — большая версия */}
-          <div className="hidden md:flex items-center gap-8 lg:gap-12">
+          <div className="hidden xl:flex items-center gap-8 lg:gap-12">
             {/* Навигация */}
             <div className="flex items-center gap-6 lg:gap-8">
+              <ThemeToggle variant="plain" />
               {site.nav.map((item) => (
                 <Link
                   key={item.path}
@@ -182,21 +185,24 @@ const Navbar = () => {
             </Link>
           </div>
 
-          {/* Мобильная кнопка */}
+          {/* Переключатель доступен и при закрытом мобильном меню. */}
+          <div className="xl:hidden flex items-center gap-3">
+          <ThemeToggle variant="plain" />
           <button
-            className="md:hidden relative w-10 h-10 flex items-center justify-center text-purple-500 hover:text-purple-600 transition-colors"
+            className="xl:hidden relative w-10 h-10 flex items-center justify-center text-purple-500 hover:text-purple-600 transition-colors"
             onClick={() => setIsOpen(!isOpen)}
             aria-label={site.menuLabel}
           >
             <div className="absolute inset-0 bg-purple-500/10 rounded-lg opacity-0 hover:opacity-100 transition-opacity" />
             {isOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
+          </div>
         </div>
 
         {/* Мобильное меню */}
         <div
           className={`
-            md:hidden overflow-hidden transition-all duration-500 ease-in-out
+            xl:hidden overflow-hidden transition-all duration-500 ease-in-out
             ${isOpen ? "max-h-96 opacity-100 mt-4" : "max-h-0 opacity-0"}
           `}
         >
