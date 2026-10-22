@@ -37,6 +37,7 @@ const Navbar = () => {
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-3 min-w-0">
+          <ThemeToggle variant="plain" />
           <Link to="/" className="group flex items-center gap-3 min-w-0">
             <div
               className="
@@ -92,7 +93,6 @@ const Navbar = () => {
               </div>
             </div>
           </Link>
-          <ThemeToggle variant="plain" />
           </div>
 
           {/* ДЕСКТОП — большая версия */}

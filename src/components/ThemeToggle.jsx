@@ -8,6 +8,6 @@ export default function ThemeToggle({ variant = 'plain' }) {
   const Icon = theme === 'dark' ? Sun : Moon;
   return <button type="button" className={`theme-toggle theme-toggle--${variant}`} onClick={toggleTheme}
     aria-label={label} title={label} aria-pressed={theme === 'dark'}>
-    <Icon size={25} aria-hidden="true" />
+    <Icon size={28} aria-hidden="true" />
   </button>;
 }
