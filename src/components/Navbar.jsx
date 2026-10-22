@@ -36,7 +36,8 @@ const Navbar = () => {
     >
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex justify-between items-center">
-          <Link to="/" className="group flex items-center gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+          <Link to="/" className="group flex items-center gap-3 min-w-0">
             <div
               className="
     w-10
@@ -91,12 +92,13 @@ const Navbar = () => {
               </div>
             </div>
           </Link>
+          <ThemeToggle variant="plain" />
+          </div>
 
           {/* ДЕСКТОП — большая версия */}
           <div className="hidden xl:flex items-center gap-8 lg:gap-12">
             {/* Навигация */}
             <div className="flex items-center gap-6 lg:gap-8">
-              <ThemeToggle variant="plain" />
               {site.nav.map((item) => (
                 <Link
                   key={item.path}
@@ -187,7 +189,6 @@ const Navbar = () => {
 
           {/* Переключатель доступен и при закрытом мобильном меню. */}
           <div className="xl:hidden flex items-center gap-3">
-          <ThemeToggle variant="plain" />
           <button
             className="xl:hidden relative w-10 h-10 flex items-center justify-center text-purple-500 hover:text-purple-600 transition-colors"
             onClick={() => setIsOpen(!isOpen)}
