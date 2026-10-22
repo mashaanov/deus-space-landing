@@ -82,7 +82,7 @@ const TechRiderCard = ({ item, index }) => {
                 stiffness: 400,
                 damping: 20,
               }}
-              className="bg-[var(--color-purple-500)] backdrop-blur-sm rounded-xl p-5 lg:p-7 border border-[var(--color-purple-500)]/30 hover:border-[var(--color-purple-400)]/60 transition-all duration-300 shadow-lg shadow-purple-500/5">
+              className="site-equipment-card bg-[var(--color-purple-500)] backdrop-blur-sm rounded-xl p-5 lg:p-7 border border-[var(--color-purple-500)]/30 hover:border-[var(--color-purple-400)]/60 transition-all duration-300 shadow-lg shadow-purple-500/5">
               <div className="space-y-3 lg:space-y-4">
                 <Motion.h2
                   initial={{ opacity: 0, y: 15 }}

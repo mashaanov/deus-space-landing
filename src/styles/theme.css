@@ -1,0 +1,25 @@
+html { color-scheme: light; }
+html[data-theme="dark"] { color-scheme: dark; background: #12101a; }
+.theme-toggle,
+.admin-shell .theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #7040a5;
+  cursor: pointer;
+  transition: color .15s ease;
+}
+.theme-toggle:hover,
+.admin-shell .theme-toggle:hover { background: transparent; color: #51217f; }
+html[data-theme="dark"] .theme-toggle { color: #d5bcf3; }
+html[data-theme="dark"] .theme-toggle:hover { color: #f0e4ff; }
+.theme-toggle:focus-visible,
+.admin-shell .theme-toggle:focus-visible { outline: 3px solid #aa80d1; outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) { .theme-toggle { transition: none; } }
