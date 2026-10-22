@@ -12,12 +12,12 @@ html[data-theme="dark"] { color-scheme: dark; background: #12101a; }
   border: 0;
   border-radius: 8px;
   background: transparent;
-  color: #7040a5;
+  color: var(--color-purple-500, #a855f7);
   cursor: pointer;
   transition: color .15s ease;
 }
 .theme-toggle:hover,
-.admin-shell .theme-toggle:hover { background: transparent; color: #51217f; }
+.admin-shell .theme-toggle:hover { background: transparent; color: var(--color-purple-600, #9333ea); }
 html[data-theme="dark"] .theme-toggle { color: #d5bcf3; }
 html[data-theme="dark"] .theme-toggle:hover { color: #f0e4ff; }
 .theme-toggle:focus-visible,
